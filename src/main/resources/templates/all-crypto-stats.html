@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Statistics</title>
+    <link th:href="@{/styles/style.css}" rel="stylesheet"/>
+</head>
+<body>
+<table class="styled-table">
+    <thead>
+    <tr>
+        <th> Name </th>
+        <th> Min Price </th>
+        <th> Max Price </th>
+        <th> Oldest Price </th>
+        <th> Newest Price </th>
+        <th> Normalized Range </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${cryptoStatsSet.isEmpty}">
+        <td colspan="2"> No cryptos available </td>
+    </tr>
+    <tr th:each="cryptoStats : ${cryptoStatsSet}">
+        <td><span th:text="${cryptoStats.symbol}"> Name </span></td>
+        <td><span th:text="${cryptoStats.minPrice}"> Min Price </span></td>
+        <td><span th:text="${cryptoStats.maxPrice}"> Max Price </span></td>
+        <td><span th:text="${cryptoStats.oldestPrice}"> Oldest Price </span></td>
+        <td><span th:text="${cryptoStats.newestPrice}"> Newest Price </span></td>
+        <td><span th:text="${cryptoStats.normalizedRange}"> Normalized Range </span></td>
+    </tr>
+    </tbody>
+</table>
+</body>
+</html>
