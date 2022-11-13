@@ -1,10 +1,11 @@
-package com.xm.crypto.config;
+package com.crypto.advisor.config;
 
-import com.xm.crypto.filter.RateLimitInterceptor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+import com.crypto.advisor.filter.RateLimitInterceptor;
 
 /**
  * Additional Spring MVC configuration
@@ -12,8 +13,12 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 @Configuration
 public class AppConfig implements WebMvcConfigurer {
 
+    private final RateLimitInterceptor interceptor;
+
     @Autowired
-    private RateLimitInterceptor interceptor;
+    public AppConfig(RateLimitInterceptor interceptor) {
+        this.interceptor = interceptor;
+    }
 
     /**
      * Adds the provided RateLimitInterceptor to the interceptor registry

@@ -1,7 +1,7 @@
-package com.xm.crypto.entity;
+package com.crypto.advisor.entity;
 
-import lombok.Builder;
 import lombok.Data;
+import lombok.Builder;
 
 /**
  * Represents crypto statistical data

@@ -1,26 +1,26 @@
-package com.xm.crypto.service;
+package com.crypto.advisor.service;
 
-import com.xm.crypto.entity.CryptoStats;
-import com.xm.crypto.entity.CryptoSymbol;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.io.IOException;
+import com.crypto.advisor.entity.CryptoStats;
+import com.crypto.advisor.entity.CryptoSymbol;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @RunWith(MockitoJUnitRunner.class)
-public class CryptoServiceTest {
+class CryptoServiceTest {
 
     @Autowired
     private CryptoService cryptoService;
 
     @Test
-    public void getCryptoStatisticsTest() throws IOException {
+    void getCryptoStatisticsTest() {
+
         assertThat(cryptoService.getCryptoStatistics().size()).isGreaterThan(1);
 
         var btcStats = CryptoStats.builder()
