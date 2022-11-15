@@ -19,9 +19,9 @@ class CryptoServiceTest {
     private CryptoService cryptoService;
 
     @Test
-    void getCryptoStatisticsTest() {
+    void getCryptoStatistics() {
 
-        assertThat(cryptoService.getCryptoStatistics().size()).isGreaterThan(1);
+        assertThat(cryptoService.getCryptoStatistics()).hasSizeGreaterThan(1);
 
         var btcStats = CryptoStats.builder()
                 .symbol(CryptoSymbol.BTC)
