@@ -1,7 +1,7 @@
-package com.xm.crypto;
+package com.crypto.advisor;
 
-import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.SpringApplication;
 
 /**
  * The starting point of the application

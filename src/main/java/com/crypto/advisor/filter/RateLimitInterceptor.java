@@ -1,16 +1,17 @@
-package com.xm.crypto.filter;
+package com.crypto.advisor.filter;
 
-import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
-import io.github.bucket4j.Bandwidth;
-import org.springframework.http.HttpStatus;
-import org.springframework.stereotype.Component;
-import org.springframework.web.servlet.HandlerInterceptor;
+import java.time.Duration;
+import java.io.IOException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.time.Duration;
+
+import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.servlet.HandlerInterceptor;
+import io.github.bucket4j.Bucket;
+import io.github.bucket4j.Refill;
+import io.github.bucket4j.Bandwidth;
 
 /**
  * Interceptor responsible for rate limiting
@@ -21,7 +22,9 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     private final Bucket tokenBucket;
 
     public RateLimitInterceptor() {
+
         var limit = Bandwidth.classic(50, Refill.greedy(50, Duration.ofMinutes(5)));
+
         this.tokenBucket = Bucket.builder()
                 .addLimit(limit)
                 .build();
@@ -29,7 +32,9 @@ public class RateLimitInterceptor implements HandlerInterceptor {
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws IOException {
+
         var probe = tokenBucket.tryConsumeAndReturnRemaining(1);
+
         if (probe.isConsumed()) {
             response.addHeader("X-Rate-Limit-Remaining", String.valueOf(probe.getRemainingTokens()));
             return true;

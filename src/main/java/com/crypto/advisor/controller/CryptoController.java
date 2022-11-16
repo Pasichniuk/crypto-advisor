@@ -1,17 +1,18 @@
-package com.xm.crypto.controller;
+package com.crypto.advisor.controller;
 
-import com.xm.crypto.entity.CryptoSymbol;
-import com.xm.crypto.service.CryptoService;
-import org.apache.commons.lang3.EnumUtils;
+import java.util.Locale;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.lang.NonNull;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.lang.NonNull;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.apache.commons.lang3.EnumUtils;
 
-import java.util.Locale;
+import com.crypto.advisor.service.CryptoService;
+import com.crypto.advisor.entity.CryptoSymbol;
 
 /**
  * Controller responsible for crypto statistics data

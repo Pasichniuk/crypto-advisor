@@ -1,4 +1,4 @@
-package com.xm.crypto.entity;
+package com.crypto.advisor.entity;
 
 import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;

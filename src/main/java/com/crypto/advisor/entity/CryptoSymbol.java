@@ -1,4 +1,4 @@
-package com.xm.crypto.entity;
+package com.crypto.advisor.entity;
 
 /**
  * Holds crypto symbols for all supported cryptos
