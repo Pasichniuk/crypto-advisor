@@ -10,13 +10,14 @@ import com.crypto.advisor.filter.RateLimitInterceptor;
 /**
  * Additional Spring MVC configuration
  */
+
 @Configuration
-public class AppConfig implements WebMvcConfigurer {
+public class ApplicationConfig implements WebMvcConfigurer {
 
     private final RateLimitInterceptor interceptor;
 
     @Autowired
-    public AppConfig(RateLimitInterceptor interceptor) {
+    public ApplicationConfig(RateLimitInterceptor interceptor) {
         this.interceptor = interceptor;
     }
 

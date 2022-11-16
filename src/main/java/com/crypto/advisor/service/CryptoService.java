@@ -16,6 +16,7 @@ import com.crypto.advisor.entity.*;
 /**
  * Service responsible for crypto statistics
  */
+
 @Service
 public class CryptoService {
 

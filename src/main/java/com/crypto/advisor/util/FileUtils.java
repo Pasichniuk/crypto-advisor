@@ -10,6 +10,8 @@ import java.io.IOException;
 import com.fasterxml.jackson.databind.MappingIterator;
 import com.fasterxml.jackson.databind.ObjectReader;
 import com.fasterxml.jackson.dataformat.csv.CsvMapper;
+import lombok.AccessLevel;
+import lombok.NoArgsConstructor;
 
 import com.crypto.advisor.entity.Crypto;
 
@@ -18,6 +20,8 @@ import com.crypto.advisor.entity.Crypto;
 /**
  * Utility class for interacting with files
  */
+
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileUtils {
 
     private static final ObjectReader OBJECT_READER;
@@ -31,8 +35,6 @@ public final class FileUtils {
 
         OBJECT_READER = mapper.readerFor(Crypto.class).with(schema);
     }
-
-    private FileUtils() {}
 
     /**
      * Returns MappingIterator for the provided file

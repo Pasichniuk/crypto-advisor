@@ -6,6 +6,7 @@ import org.springframework.boot.SpringApplication;
 /**
  * The starting point of the application
  */
+
 @SpringBootApplication
 public class CryptoAdvisorApplication {
 

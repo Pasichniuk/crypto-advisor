@@ -17,9 +17,12 @@ import com.crypto.advisor.entity.CryptoSymbol;
 /**
  * Controller responsible for crypto statistics data
  */
+
 @Controller
 @RequestMapping("stats")
 public class CryptoController {
+
+    private static final String CRYPTO_STATS_PAGE_PATH = "crypto-stats";
 
     private final CryptoService cryptoService;
 
@@ -52,7 +55,7 @@ public class CryptoController {
         if (EnumUtils.isValidEnum(CryptoSymbol.class, cryptoSymbol.toUpperCase(Locale.ENGLISH))) {
             var symbol = CryptoSymbol.valueOf(cryptoSymbol);
             model.addAttribute("cryptoStats", cryptoService.getCryptoStatistics(symbol));
-            return "crypto-stats";
+            return CRYPTO_STATS_PAGE_PATH;
         } else {
             model.addAttribute("message", "Sorry, this crypto is not currently supported");
             return "error";
@@ -68,6 +71,6 @@ public class CryptoController {
     @GetMapping("best")
     public String getCryptoWithHighestNormalizedRange(Model model) {
         model.addAttribute("cryptoStats", cryptoService.getCryptoWithHighestNormalizedRange());
-        return "crypto-stats";
+        return CRYPTO_STATS_PAGE_PATH;
     }
 }
