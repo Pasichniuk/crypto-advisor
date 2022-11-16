@@ -17,7 +17,6 @@ repositories {
 }
 
 val lombokVersion = "1.18.24"
-val junitVersion = "4.13.2"
 
 dependencies {
 
@@ -32,7 +31,7 @@ dependencies {
 	annotationProcessor("org.projectlombok:lombok:$lombokVersion")
 
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("junit:junit:$junitVersion")
+    testImplementation("junit:junit:4.13.2")
 }
 
 tasks.withType<Test> {
