@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileUtils {
 
-    public static List<File> listFilesForFolderWithPattern(File folder, String pattern) {
+    public static List<File> listFilesInFolderByPattern(File folder, String pattern) {
         return Arrays.stream(Objects.requireNonNull(folder.listFiles()))
                 .filter(f -> f.getName().contains(pattern))
                 .collect(Collectors.toUnmodifiableList());

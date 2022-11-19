@@ -24,13 +24,13 @@ class CryptoServiceTest {
         assertThat(cryptoService.getCryptoStatistics()).hasSizeGreaterThan(1);
 
         var btcStats = CryptoStats.builder()
-                .symbol(CryptoSymbol.BTC)
-                .minPrice(33276.59)
-                .maxPrice(47722.66)
-                .oldestPrice(46813.21)
-                .newestPrice(38415.79)
-                .normalizedRange(0.43412110435594536)
-                .build();
+            .symbol(CryptoSymbol.BTC)
+            .minPrice(33276.59)
+            .maxPrice(47722.66)
+            .oldestPrice(46813.21)
+            .newestPrice(38415.79)
+            .normalizedRange(0.43412110435594536)
+            .build();
 
         assertThat(cryptoService.getCryptoStatistics(CryptoSymbol.BTC)).isEqualTo(btcStats);
     }

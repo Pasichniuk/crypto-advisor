@@ -54,7 +54,7 @@ public class CryptoService {
         ObjectReader reader
     ) {
 
-        var files = FileUtils.listFilesForFolderWithPattern(
+        var files = FileUtils.listFilesInFolderByPattern(
             new File(pricesDirectory), "_values.csv"
         );
 
