@@ -33,7 +33,11 @@ public class RateLimitInterceptor implements HandlerInterceptor {
     }
 
     @Override
-    public boolean preHandle(@NonNull HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull Object handler) throws IOException {
+    public boolean preHandle(
+        @NonNull HttpServletRequest request,
+        @NonNull HttpServletResponse response,
+        @NonNull Object handler
+    ) throws IOException {
 
         var probe = tokenBucket.tryConsumeAndReturnRemaining(1);
 

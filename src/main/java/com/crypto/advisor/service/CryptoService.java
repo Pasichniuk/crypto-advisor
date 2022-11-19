@@ -5,6 +5,9 @@ import java.util.stream.Collectors;
 import java.io.File;
 import java.io.IOException;
 
+import com.fasterxml.jackson.databind.MappingIterator;
+import com.fasterxml.jackson.databind.ObjectReader;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
@@ -14,7 +17,7 @@ import com.crypto.advisor.util.FileUtils;
 import com.crypto.advisor.entity.*;
 
 /**
- * Service responsible for crypto statistics
+ * Service responsible for processing crypto statistics
  */
 
 @Service
@@ -24,70 +27,73 @@ public class CryptoService {
 
     private final Map<CryptoSymbol, CryptoStats> cryptoStatsPerSymbol;
 
+    @Autowired
     public CryptoService(
-        @Value("${prices.directory}") String pricesDirectory
+        @Value("${prices.directory}") String pricesDirectory,
+        ObjectReader reader
     ) {
-        // TODO: this logic should be re-worked ASAP
-
-        var files = FileUtils.listFilesForFolder(
-            new File(pricesDirectory)
-        );
-
-        Map<CryptoSymbol, CryptoStats> cryptoStatsPerSymbolBuilder = new EnumMap<>(CryptoSymbol.class);
-
-        try {
-
-            for (var file : files) {
-                var iterator = FileUtils.getMappingIterator(file);
-                var cryptos = iterator.readAll();
-                cryptoStatsPerSymbolBuilder.put(getCryptoSymbolFromList(cryptos), buildCryptoStats(cryptos));
-            }
-
-        } catch (IOException | NoSuchElementException e) {
-            LOGGER.error(e.getMessage());
-        }
-
-        this.cryptoStatsPerSymbol = cryptoStatsPerSymbolBuilder.entrySet().stream()
-            .sorted(Map.Entry.comparingByValue(Comparator.comparingDouble(CryptoStats::getNormalizedRange).reversed()))
-            .collect(Collectors.toMap(
-                Map.Entry::getKey,
-                Map.Entry::getValue,
-                (oldValue, newValue) -> oldValue, LinkedHashMap::new)
-            );
+        this.cryptoStatsPerSymbol = buildCryptoStatsPerSymbol(pricesDirectory, reader);
     }
 
-    /**
-     * Getter for cryptoStatsPerSymbol map
-     * @return Map<CryptoSymbol, CryptoStats>
-     */
     public Map<CryptoSymbol, CryptoStats> getCryptoStatistics() {
         return cryptoStatsPerSymbol;
     }
 
-    /**
-     * Returns statistics for the provided cryptoSymbol
-     * @param cryptoSymbol - the symbol for which statistics are returned
-     * @return CryptoStats
-     */
     public CryptoStats getCryptoStatistics(CryptoSymbol cryptoSymbol) {
         return cryptoStatsPerSymbol.get(cryptoSymbol);
     }
 
-    /**
-     * Returns statistics for the crypto with the highest normalized range
-     * @return CryptoStats
-     */
     public CryptoStats getCryptoWithHighestNormalizedRange() {
         return cryptoStatsPerSymbol.values().stream()
             .findFirst()
             .orElseThrow(NoSuchElementException::new);
     }
 
-    /**
-     * Builds CryptoStats objects from the provided list of crypto data
-     * @param cryptos - list of crypto data
-     * @return CryptoStats
-     */
+    private static Map<CryptoSymbol, CryptoStats> buildCryptoStatsPerSymbol(
+        String pricesDirectory,
+        ObjectReader reader
+    ) {
+
+        var files = FileUtils.listFilesForFolderWithPattern(
+            new File(pricesDirectory), "_values.csv"
+        );
+
+        // TODO: this logic should definitely be re-worked
+
+        Map<CryptoSymbol, CryptoStats> cryptoStatsPerSymbolBuilder = new EnumMap<>(CryptoSymbol.class);
+
+        try {
+
+            for (var file : files) {
+
+                try (MappingIterator<Crypto> iterator = reader.readValues(file)) {
+                    var cryptos = iterator.readAll();
+                    cryptoStatsPerSymbolBuilder.put(getCryptoSymbolFromList(cryptos), buildCryptoStats(cryptos));
+                }
+            }
+
+        } catch (IOException | NoSuchElementException e) {
+            LOGGER.error(e.getMessage());
+        }
+
+        return cryptoStatsPerSymbolBuilder.entrySet().stream()
+            .sorted(
+                Map.Entry.comparingByValue(
+                    Comparator.comparingDouble(CryptoStats::getNormalizedRange).reversed()
+                )
+            )
+            .collect(
+                Collectors.collectingAndThen(
+                    Collectors.toMap(
+                        Map.Entry::getKey,
+                        Map.Entry::getValue,
+                        (oldValue, newValue) -> oldValue, LinkedHashMap::new
+                    ),
+                    Map::copyOf
+                )
+            );
+    }
+
     private static CryptoStats buildCryptoStats(List<Crypto> cryptos) {
 
         // TODO: review this
@@ -121,11 +127,6 @@ public class CryptoService {
         return cryptoStats;
     }
 
-    /**
-     * Returns the symbol of crypto provided in cryptos list
-     * @param cryptos - list of crypto data
-     * @return CryptoSymbol
-     */
     private static CryptoSymbol getCryptoSymbolFromList(List<Crypto> cryptos) {
 
         // TODO: this method will be likely retired after the logic re-design
