@@ -51,7 +51,7 @@ public class CryptoService {
 
     private static Map<CryptoSymbol, CryptoStats> buildCryptoStatsPerSymbol(
         String pricesDirectory,
-        ObjectReader reader
+        ObjectReader cryptoObjectReader
     ) {
 
         var files = FileUtils.listFilesInFolderByPattern(
@@ -66,7 +66,7 @@ public class CryptoService {
 
             for (var file : files) {
 
-                try (MappingIterator<Crypto> iterator = reader.readValues(file)) {
+                try (MappingIterator<Crypto> iterator = cryptoObjectReader.readValues(file)) {
                     var cryptos = iterator.readAll();
                     cryptoStatsPerSymbolBuilder.put(getCryptoSymbolFromList(cryptos), buildCryptoStats(cryptos));
                 }
