@@ -4,7 +4,7 @@ import lombok.Data;
 import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 
 /**
- * Represents the data read from CSV files
+ * Represents crypto data read from CSV files
  */
 
 @Data

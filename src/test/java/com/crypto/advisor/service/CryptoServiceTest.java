@@ -24,24 +24,28 @@ class CryptoServiceTest {
         assertThat(cryptoService.getCryptoStatistics()).hasSizeGreaterThan(1);
 
         var btcStats = CryptoStats.builder()
-                .symbol(CryptoSymbol.BTC)
-                .minPrice(33276.59)
-                .maxPrice(47722.66)
-                .oldestPrice(46813.21)
-                .newestPrice(38415.79)
-                .normalizedRange(0.43412110435594536)
-                .build();
+            .symbol(CryptoSymbol.BTC)
+            .minPrice(33276.59)
+            .maxPrice(47722.66)
+            .oldestPrice(46813.21)
+            .newestPrice(38415.79)
+            .normalizedRange(0.43412110435594536)
+            .build();
 
         assertThat(cryptoService.getCryptoStatistics(CryptoSymbol.BTC)).isEqualTo(btcStats);
+    }
+
+    @Test
+    void getCryptoWithHighestNormalizedRange() {
 
         var ethStats = CryptoStats.builder()
-                .symbol(CryptoSymbol.ETH)
-                .minPrice(2336.52)
-                .maxPrice(3828.11)
-                .oldestPrice(3715.32)
-                .newestPrice(2672.5)
-                .normalizedRange(0.6383810110763016)
-                .build();
+            .symbol(CryptoSymbol.ETH)
+            .minPrice(2336.52)
+            .maxPrice(3828.11)
+            .oldestPrice(3715.32)
+            .newestPrice(2672.5)
+            .normalizedRange(0.6383810110763016)
+            .build();
 
         assertThat(cryptoService.getCryptoWithHighestNormalizedRange()).isEqualTo(ethStats);
     }
