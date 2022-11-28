@@ -28,10 +28,7 @@ public class CryptoService {
     private final Map<CryptoSymbol, CryptoStats> cryptoStatsPerSymbol;
 
     @Autowired
-    public CryptoService(
-        @Value("${prices.directory}") String pricesDirectory,
-        ObjectReader reader
-    ) {
+    public CryptoService(@Value("${prices.directory}") String pricesDirectory, ObjectReader reader) {
         this.cryptoStatsPerSymbol = buildCryptoStatsPerSymbol(pricesDirectory, reader);
     }
 
