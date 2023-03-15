@@ -11,10 +11,6 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.crypto.advisor.filter.RateLimitInterceptor;
 import com.crypto.advisor.entity.Crypto;
 
-/**
- * Additional Spring MVC configuration
- */
-
 @Configuration
 public class ApplicationConfig implements WebMvcConfigurer {
 
@@ -32,13 +28,9 @@ public class ApplicationConfig implements WebMvcConfigurer {
 
     @Bean
     public ObjectReader cryptoObjectReader() {
-
         var mapper = new CsvMapper();
+        var schema = mapper.schemaFor(Crypto.class).withSkipFirstDataRow(true);
 
-        var schema = mapper.schemaFor(Crypto.class)
-            .withSkipFirstDataRow(true);
-
-        return mapper.readerFor(Crypto.class)
-            .with(schema);
+        return mapper.readerFor(Crypto.class).with(schema);
     }
 }

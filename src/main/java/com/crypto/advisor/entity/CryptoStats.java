@@ -3,10 +3,6 @@ package com.crypto.advisor.entity;
 import lombok.Data;
 import lombok.Builder;
 
-/**
- * Represents crypto statistical data
- */
-
 @Data
 @Builder
 public class CryptoStats {

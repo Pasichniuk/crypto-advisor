@@ -9,10 +9,6 @@ import java.io.File;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
-/**
- * Utility class for interacting with files
- */
-
 @NoArgsConstructor(access = AccessLevel.PRIVATE)
 public final class FileUtils {
 

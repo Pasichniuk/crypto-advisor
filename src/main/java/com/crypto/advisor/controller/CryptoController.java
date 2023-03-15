@@ -14,15 +14,12 @@ import org.apache.commons.lang3.EnumUtils;
 import com.crypto.advisor.service.CryptoService;
 import com.crypto.advisor.entity.CryptoSymbol;
 
-/**
- * Controller for crypto statistics data
- */
-
 @Controller
 @RequestMapping("stats")
 public class CryptoController {
 
     private static final String CRYPTO_STATS_PAGE_PATH = "crypto-stats";
+    private static final String ALL_CRYPTO_STATS_PAGE_PATH = "all-crypto-stats";
 
     private final CryptoService cryptoService;
 
@@ -34,14 +31,11 @@ public class CryptoController {
     @GetMapping
     public String getCryptoStatistics(Model model) {
         model.addAttribute("cryptoStatsSet", cryptoService.getCryptoStatistics().values());
-        return "all-crypto-stats";
+        return ALL_CRYPTO_STATS_PAGE_PATH;
     }
 
     @GetMapping("{cryptoSymbol}")
     public String getCryptoStatistics(@PathVariable @NonNull String cryptoSymbol, Model model) {
-
-        // TODO: replace this external library call with a simple 'from' method implementation
-
         if (EnumUtils.isValidEnum(CryptoSymbol.class, cryptoSymbol.toUpperCase(Locale.ENGLISH))) {
             var symbol = CryptoSymbol.valueOf(cryptoSymbol);
             model.addAttribute("cryptoStats", cryptoService.getCryptoStatistics(symbol));

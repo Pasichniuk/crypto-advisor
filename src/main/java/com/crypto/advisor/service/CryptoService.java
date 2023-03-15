@@ -16,10 +16,6 @@ import org.slf4j.LoggerFactory;
 import com.crypto.advisor.util.FileUtils;
 import com.crypto.advisor.entity.*;
 
-/**
- * Service responsible for processing crypto statistics
- */
-
 @Service
 public class CryptoService {
 
@@ -55,14 +51,10 @@ public class CryptoService {
             new File(pricesDirectory), "_values.csv"
         );
 
-        // TODO: this logic should definitely be re-worked
-
         Map<CryptoSymbol, CryptoStats> cryptoStatsPerSymbolBuilder = new EnumMap<>(CryptoSymbol.class);
 
         try {
-
             for (var file : files) {
-
                 try (MappingIterator<Crypto> iterator = cryptoObjectReader.readValues(file)) {
                     var cryptos = iterator.readAll();
                     cryptoStatsPerSymbolBuilder.put(getCryptoSymbolFromList(cryptos), buildCryptoStats(cryptos));
@@ -92,9 +84,6 @@ public class CryptoService {
     }
 
     private static CryptoStats buildCryptoStats(List<Crypto> cryptos) {
-
-        // TODO: review this
-
         var cryptoStats = CryptoStats.builder()
             .symbol(getCryptoSymbolFromList(cryptos))
             .maxPrice(cryptos.stream()
@@ -125,9 +114,6 @@ public class CryptoService {
     }
 
     private static CryptoSymbol getCryptoSymbolFromList(List<Crypto> cryptos) {
-
-        // TODO: this method will be likely retired after the logic re-design
-
         return cryptos.stream()
             .map(Crypto::getSymbol)
             .distinct()

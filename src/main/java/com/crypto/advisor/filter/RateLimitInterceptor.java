@@ -14,19 +14,13 @@ import io.github.bucket4j.Refill;
 import io.github.bucket4j.Bandwidth;
 import lombok.NonNull;
 
-/**
- * Interceptor responsible for rate limiting
- */
-
 @Component
 public class RateLimitInterceptor implements HandlerInterceptor {
 
     private final Bucket tokenBucket;
 
     public RateLimitInterceptor() {
-
         var limit = Bandwidth.classic(50, Refill.greedy(50, Duration.ofMinutes(5)));
-
         this.tokenBucket = Bucket.builder()
                 .addLimit(limit)
                 .build();
@@ -45,7 +39,6 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             response.addHeader("X-Rate-Limit-Remaining", String.valueOf(probe.getRemainingTokens()));
             return true;
         } else {
-
             var waitForRefill = probe.getNanosToWaitForRefill() / 1_000_000_000;
 
             response.addHeader("X-Rate-Limit-Retry-After-Seconds", String.valueOf(waitForRefill));

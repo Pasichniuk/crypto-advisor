@@ -20,9 +20,6 @@ class CryptoServiceTest {
 
     @Test
     void getCryptoStatistics() {
-
-        assertThat(cryptoService.getCryptoStatistics()).hasSizeGreaterThan(1);
-
         var btcStats = CryptoStats.builder()
             .symbol(CryptoSymbol.BTC)
             .minPrice(33276.59)
@@ -33,11 +30,11 @@ class CryptoServiceTest {
             .build();
 
         assertThat(cryptoService.getCryptoStatistics(CryptoSymbol.BTC)).isEqualTo(btcStats);
+        assertThat(cryptoService.getCryptoStatistics()).hasSizeGreaterThan(1);
     }
 
     @Test
     void getCryptoWithHighestNormalizedRange() {
-
         var ethStats = CryptoStats.builder()
             .symbol(CryptoSymbol.ETH)
             .minPrice(2336.52)
