@@ -72,14 +72,11 @@ public class CryptoService {
                 )
             )
             .collect(
-                Collectors.collectingAndThen(
                     Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue, LinkedHashMap::new
-                    ),
-                    Map::copyOf
-                )
+                            Map.Entry::getKey,
+                            Map.Entry::getValue,
+                            (oldValue, newValue) -> oldValue, LinkedHashMap::new
+                    )
             );
     }
 
