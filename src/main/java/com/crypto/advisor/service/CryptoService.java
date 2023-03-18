@@ -10,7 +10,11 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class CryptoService {
@@ -38,7 +42,9 @@ public class CryptoService {
             LOGGER.error("Failed to process json. Reason: " + e.getMessage());
         }
 
-        return Set.of(cryptoStats);
+        return Stream.of(cryptoStats)
+                .sorted(Comparator.comparing(CryptoStats::getRank))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
     public CryptoStats getCryptoStatisticsBySymbol(String symbol) {
