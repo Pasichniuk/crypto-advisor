@@ -16,14 +16,15 @@ repositories {
     mavenCentral()
 }
 
-val lombokVersion = "1.18.24"
+val lombokVersion = "1.18.26"
 
 dependencies {
 
 	implementation("org.springframework.boot:spring-boot-starter-thymeleaf")
 	implementation("org.springframework.boot:spring-boot-starter-web")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.14.0")
+    implementation("com.google.code.gson:gson:2.10.1")
     implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.apache.httpcomponents:httpclient:4.5.14")
     implementation("com.github.vladimir-bukhtoyarov:bucket4j-core:7.6.0")
 
 	compileOnly("org.projectlombok:lombok:$lombokVersion")

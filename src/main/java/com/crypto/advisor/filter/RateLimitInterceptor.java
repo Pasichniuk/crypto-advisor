@@ -40,10 +40,8 @@ public class RateLimitInterceptor implements HandlerInterceptor {
             return true;
         } else {
             var waitForRefill = probe.getNanosToWaitForRefill() / 1_000_000_000;
-
             response.addHeader("X-Rate-Limit-Retry-After-Seconds", String.valueOf(waitForRefill));
             response.sendError(HttpStatus.TOO_MANY_REQUESTS.value());
-
             return false;
         }
     }
