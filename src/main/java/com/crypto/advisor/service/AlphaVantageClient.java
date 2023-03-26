@@ -1,6 +1,5 @@
 package com.crypto.advisor.service;
 
-import org.apache.http.HttpHeaders;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.utils.URIBuilder;
@@ -17,23 +16,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class CmcApiClient {
+public class AlphaVantageClient {
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(CmcApiClient.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AlphaVantageClient.class);
 
     // TODO: get these values from properties
     private static final String API_KEY = "<key>";
-    private static final String PROD_URL = "https://pro-api.coinmarketcap.com";
-    private static final String LISTINGS_LATEST_ENDPOINT = "/v1/cryptocurrency/listings/latest";
+    private static final String PROD_URL = "https://www.alphavantage.co/query";
 
-    public String getLatestListings() {
+    public String getHistoricalData(String function, String symbol) {
         List<NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair("start","1"));
-        parameters.add(new BasicNameValuePair("limit","10"));
-        parameters.add(new BasicNameValuePair("convert","USD"));
+        parameters.add(new BasicNameValuePair("function",function));
+        parameters.add(new BasicNameValuePair("symbol",symbol));
+        parameters.add(new BasicNameValuePair("market","USD"));
+        parameters.add(new BasicNameValuePair("apikey", API_KEY));
 
         try {
-            return makeAPICall(PROD_URL + LISTINGS_LATEST_ENDPOINT, parameters);
+            return makeAPICall(parameters);
         } catch (IOException | URISyntaxException e) {
             LOGGER.error("Caught exception during API call: " + e.getMessage());
         }
@@ -41,17 +40,15 @@ public class CmcApiClient {
         return "";
     }
 
-    private static String makeAPICall(String uri, List<NameValuePair> parameters)
+    private static String makeAPICall(List<NameValuePair> parameters)
             throws URISyntaxException, IOException {
 
         String responseContent;
 
-        var query = new URIBuilder(uri);
+        var query = new URIBuilder(PROD_URL);
         query.addParameters(parameters);
 
         var request = new HttpGet(query.build());
-        request.setHeader(HttpHeaders.ACCEPT, "application/json");
-        request.addHeader("X-CMC_PRO_API_KEY", API_KEY);
 
         try (var client = HttpClients.createDefault();
              var response = client.execute(request)) {

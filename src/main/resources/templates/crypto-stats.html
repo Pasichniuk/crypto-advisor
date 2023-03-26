@@ -1,12 +1,54 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Statistics</title>
     <link th:href="@{/styles/style.css}" rel="stylesheet"/>
+
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var cryptoGraphJson = [[${historicalData}]];
+            var data = google.visualization.arrayToDataTable(JSON.parse(cryptoGraphJson));
+
+            var options = {
+                width: 900,
+                height: 500,
+                curveType: 'function',
+                hAxis: {
+                    titleTextStyle: {color: '#FFF'},
+                    textStyle: {color: '#FFF'}
+                },
+                vAxis: {
+                    titleTextStyle: {color: '#FFF'},
+                    textStyle: {color: '#FFF'}
+                },
+                backgroundColor: {
+                    fill: '#666CC4',
+                    stroke: '#3BF4FB',
+                    strokeWidth: 7
+                },
+                legend: {
+                    textStyle: {color: '#3BF4FB'}
+                },
+                tooltip: {
+                    textStyle: {color: '#3BF4FB'}
+                },
+                titleTextStyle: {color: '#3BF4FB'},
+                colors:['#3BF4FB','#004411']
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+            chart.draw(data, options);
+        }
+    </script>
+
 </head>
 <body>
-<table class="styled-table">
+<table class="styled-table-2">
     <thead>
     <tr>
         <th> Rank </th>
@@ -38,5 +80,8 @@
     </tr>
     </tbody>
 </table>
+<div class="styled-chart">
+    <div id="curve_chart"></div>
+</div>
 </body>
 </html>

@@ -31,11 +31,12 @@ public class CryptoController {
         return ALL_CRYPTO_STATS_PAGE_PATH;
     }
 
-
     @GetMapping("{symbol}")
     public String getCryptoStatistics(@PathVariable @NonNull String symbol, Model model) {
         try {
             model.addAttribute("cryptoStats", cryptoService.getCryptoStatisticsBySymbol(symbol));
+            // TODO: get function from PathVariable
+            model.addAttribute("historicalData", cryptoService.getHistoricalData("DIGITAL_CURRENCY_MONTHLY", symbol));
             return CRYPTO_STATS_PAGE_PATH;
         } catch (CryptoNotFoundException e) {
             model.addAttribute("message", e.getMessage());

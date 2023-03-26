@@ -10,9 +10,8 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Comparator;
-import java.util.LinkedHashSet;
-import java.util.Set;
+import java.math.BigDecimal;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -22,17 +21,18 @@ public class CryptoService {
     private static final Logger LOGGER = LoggerFactory.getLogger(CryptoService.class);
 
     private final CmcApiClient cmcApiClient;
+    private final AlphaVantageClient avApiClient;
 
     @Autowired
-    public CryptoService(CmcApiClient cmcApiClient) {
+    public CryptoService(CmcApiClient cmcApiClient, AlphaVantageClient avApiClient) {
         this.cmcApiClient = cmcApiClient;
+        this.avApiClient = avApiClient;
     }
 
     public Set<CryptoStats> getCryptoStatistics() {
         var apiResponse = cmcApiClient.getLatestListings();
-        LOGGER.info("Latest listings: {}", apiResponse);
 
-        JsonObject object = (JsonObject) JsonParser.parseString(apiResponse);
+        var object = (JsonObject) JsonParser.parseString(apiResponse);
         var data = object.get("data");
 
         CryptoStats[] cryptoStats = new CryptoStats[0];
@@ -52,5 +52,40 @@ public class CryptoService {
                 .filter(c -> c.getSymbol().equals(symbol))
                 .findFirst()
                 .orElseThrow(() -> new CryptoNotFoundException(symbol));
+    }
+
+    public String getHistoricalData(String function, String symbol) {
+        var apiResponse = avApiClient.getHistoricalData(function, symbol);
+
+        var object = (JsonObject) JsonParser.parseString(apiResponse);
+        // TODO: generate this key from function
+        var data = object.get("Time Series (Digital Currency Monthly)").getAsJsonObject();
+
+        Map<String, BigDecimal> historicalData = new LinkedHashMap<>();
+
+        for (String currentKey : data.keySet()) {
+            Object value = data.get(currentKey);
+
+            if (value instanceof JsonObject) {
+                String price = ((JsonObject) value).get("2b. high (USD)").toString();
+                BigDecimal stripedVal = new BigDecimal(price.replace("\"", "")).stripTrailingZeros();
+                historicalData.put(currentKey, stripedVal);
+            }
+        }
+
+        return histMapToJsonString(historicalData);
+    }
+
+    private String histMapToJsonString(Map<String, BigDecimal> histData) {
+        var sb = new StringBuilder();
+
+        sb.append("[[\"Date\", \"Price\"],");
+
+        histData.forEach((k, v) -> sb.append(String.format("[\"%s\", %s],", k, v)));
+
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("]");
+
+        return sb.toString();
     }
 }

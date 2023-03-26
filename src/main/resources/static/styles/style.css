@@ -1,7 +1,4 @@
 html,
-body {
-	height: 100%;
-}
 
 h1 {
 	font-family: sans-serif;
@@ -10,15 +7,33 @@ h1 {
 }
 
 body {
+	height: 100%;
+	background-size: cover;
 	margin: 0;
 	background: linear-gradient(45deg, #49a09d, #5f2c82);
 	font-family: sans-serif;
 	font-weight: 100;
+	margin-top: 80px;
+	padding: 30px;
 }
 
 .styled-table {
 	position: absolute;
 	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.styled-table-2 {
+	position: absolute;
+	top: 20%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
+.styled-chart {
+	position: absolute;
+	top: 60%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 }
