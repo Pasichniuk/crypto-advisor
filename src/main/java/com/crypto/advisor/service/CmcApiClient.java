@@ -9,6 +9,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -21,10 +22,16 @@ public class CmcApiClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CmcApiClient.class);
 
-    // TODO: get these values from properties
-    private static final String API_KEY = "<key>";
-    private static final String PROD_URL = "https://pro-api.coinmarketcap.com";
     private static final String LISTINGS_LATEST_ENDPOINT = "/v1/cryptocurrency/listings/latest";
+
+    private final String url;
+    private final String apiKey;
+
+    public CmcApiClient(@Value("${cmc-api-url}") String url,
+                        @Value("${cmc-api-key}") String apiKey) {
+        this.url = url;
+        this.apiKey = apiKey;
+    }
 
     public String getLatestListings() {
         List<NameValuePair> parameters = new ArrayList<>();
@@ -33,7 +40,7 @@ public class CmcApiClient {
         parameters.add(new BasicNameValuePair("convert","USD"));
 
         try {
-            return makeAPICall(PROD_URL + LISTINGS_LATEST_ENDPOINT, parameters);
+            return makeAPICall(url + LISTINGS_LATEST_ENDPOINT, parameters);
         } catch (IOException | URISyntaxException e) {
             LOGGER.error("Caught exception during API call: " + e.getMessage());
         }
@@ -41,9 +48,7 @@ public class CmcApiClient {
         return "";
     }
 
-    private static String makeAPICall(String uri, List<NameValuePair> parameters)
-            throws URISyntaxException, IOException {
-
+    private String makeAPICall(String uri, List<NameValuePair> parameters) throws URISyntaxException, IOException {
         String responseContent;
 
         var query = new URIBuilder(uri);
@@ -51,7 +56,7 @@ public class CmcApiClient {
 
         var request = new HttpGet(query.build());
         request.setHeader(HttpHeaders.ACCEPT, "application/json");
-        request.addHeader("X-CMC_PRO_API_KEY", API_KEY);
+        request.addHeader("X-CMC_PRO_API_KEY", apiKey);
 
         try (var client = HttpClients.createDefault();
              var response = client.execute(request)) {

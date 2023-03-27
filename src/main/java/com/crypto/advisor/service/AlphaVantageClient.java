@@ -8,6 +8,7 @@ import org.apache.http.message.BasicNameValuePair;
 import org.apache.http.util.EntityUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -20,16 +21,21 @@ public class AlphaVantageClient {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(AlphaVantageClient.class);
 
-    // TODO: get these values from properties
-    private static final String API_KEY = "<key>";
-    private static final String PROD_URL = "https://www.alphavantage.co/query";
+    private final String url;
+    private final String apiKey;
+
+    public AlphaVantageClient(@Value("${alpha-vantage-api-url}") String url,
+                              @Value("${alpha-vantage-api-key}") String apiKey) {
+        this.url = url;
+        this.apiKey = apiKey;
+    }
 
     public String getHistoricalData(String function, String symbol) {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("function",function));
         parameters.add(new BasicNameValuePair("symbol",symbol));
-        parameters.add(new BasicNameValuePair("market","USD"));
-        parameters.add(new BasicNameValuePair("apikey", API_KEY));
+        parameters.add(new BasicNameValuePair("market","CNY"));
+        parameters.add(new BasicNameValuePair("apikey", apiKey));
 
         try {
             return makeAPICall(parameters);
@@ -40,12 +46,10 @@ public class AlphaVantageClient {
         return "";
     }
 
-    private static String makeAPICall(List<NameValuePair> parameters)
-            throws URISyntaxException, IOException {
-
+    private String makeAPICall(List<NameValuePair> parameters) throws URISyntaxException, IOException {
         String responseContent;
 
-        var query = new URIBuilder(PROD_URL);
+        var query = new URIBuilder(url);
         query.addParameters(parameters);
 
         var request = new HttpGet(query.build());
