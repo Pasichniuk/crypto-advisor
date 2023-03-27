@@ -15,29 +15,27 @@
             var data = google.visualization.arrayToDataTable(JSON.parse(cryptoGraphJson));
 
             var options = {
-                width: 900,
+                width: 1950,
                 height: 500,
-                curveType: 'function',
+                chartArea: {left:"5%", top:"12%", width:"90%", height:"75%"},
                 hAxis: {
-                    titleTextStyle: {color: '#FFF'},
-                    textStyle: {color: '#FFF'}
+                    titleTextStyle: {color: '#FFF', fontSize: 12},
+                    textStyle: {color: '#FFF', fontSize: 12}
                 },
                 vAxis: {
-                    titleTextStyle: {color: '#FFF'},
-                    textStyle: {color: '#FFF'}
+                    titleTextStyle: {color: '#FFF', fontSize: 14},
+                    textStyle: {color: '#FFF', fontSize: 14}
                 },
                 backgroundColor: {
                     fill: '#666CC4',
                     stroke: '#3BF4FB',
                     strokeWidth: 7
                 },
-                legend: {
-                    textStyle: {color: '#3BF4FB'}
-                },
+                legend: 'none',
                 tooltip: {
-                    textStyle: {color: '#3BF4FB'}
+                    textStyle: {color: '#3BF4FB', fontSize: 14}
                 },
-                titleTextStyle: {color: '#3BF4FB'},
+                titleTextStyle: {color: '#3BF4FB', fontSize: 12},
                 colors:['#3BF4FB','#004411']
             };
 
