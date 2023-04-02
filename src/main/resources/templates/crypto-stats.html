@@ -19,6 +19,7 @@
                 height: 500,
                 chartArea: {left:"5%", top:"12%", width:"90%", height:"75%"},
                 hAxis: {
+                    direction: -1,
                     titleTextStyle: {color: '#FFF', fontSize: 12},
                     textStyle: {color: '#FFF', fontSize: 12}
                 },
@@ -26,10 +27,11 @@
                     titleTextStyle: {color: '#FFF', fontSize: 14},
                     textStyle: {color: '#FFF', fontSize: 14}
                 },
+                series: {
+                    0: { targetAxisIndex: 1 }
+                },
                 backgroundColor: {
-                    fill: '#666CC4',
-                    stroke: '#3BF4FB',
-                    strokeWidth: 7
+                    fill: 'transparent'
                 },
                 legend: 'none',
                 tooltip: {
