@@ -36,7 +36,7 @@ public class CryptoController {
         try {
             model.addAttribute("cryptoStats", cryptoService.getCryptoStatisticsBySymbol(symbol));
             // TODO: get function from PathVariable
-            model.addAttribute("historicalData", cryptoService.getHistoricalData("DIGITAL_CURRENCY_MONTHLY", symbol));
+            model.addAttribute("historicalData", cryptoService.getHistoricalData("DIGITAL_CURRENCY_DAILY", symbol));
             return CRYPTO_STATS_PAGE_PATH;
         } catch (CryptoNotFoundException e) {
             model.addAttribute("message", e.getMessage());
