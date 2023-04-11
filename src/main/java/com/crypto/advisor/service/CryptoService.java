@@ -16,6 +16,7 @@ import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -119,13 +120,28 @@ public class CryptoService {
 
     private String histMapToJsonString(Map<String, BigDecimal> histData) {
         var sb = new StringBuilder();
+        var counter = new AtomicInteger(histData.size() - 1000);
+        var certainty = new AtomicBoolean(false);
+        var rowFormat = "{\"c\":[{\"v\":\"%s\",\"f\":null},{\"v\":%s,\"f\":null},{\"v\":%s}]},";
 
-        sb.append("[[\"Date\", \"Price\"],");
+        sb.append("{" +
+                "\"cols\": [" +
+                "{\"id\":\"\",\"label\":\"Date\",\"type\":\"string\"}," +
+                "{\"id\":\"\",\"label\":\"Price\",\"type\":\"number\"}," +
+                "{\"id\":\"\",\"role\":\"certainty\",\"type\":\"boolean\"}" +
+                "]," +
+                "\"rows\": ["
+        );
 
-        histData.forEach((k, v) -> sb.append(String.format("[\"%s\", %s],", k, v)));
+        histData.forEach((date, price) -> {
+            if (counter.getAndDecrement() == 0) {
+                certainty.set(true);
+            }
+            sb.append(String.format(rowFormat, date, price, certainty));
+        });
 
         sb.deleteCharAt(sb.length() - 1);
-        sb.append("]");
+        sb.append("]}");
 
         return sb.toString();
     }

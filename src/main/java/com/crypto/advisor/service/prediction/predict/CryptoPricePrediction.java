@@ -77,8 +77,9 @@ public class CryptoPricePrediction {
         for (int i = 0; i < predicts.length; i++) {
             LOGGER.info("{}, {}", predicts[i], actuals[i]);
         }
-        LOGGER.info("Done!");
         */
+
+        LOGGER.info("Done!");
 
         return predicts;
     }
