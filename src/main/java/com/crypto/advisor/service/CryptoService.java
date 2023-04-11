@@ -3,6 +3,7 @@ package com.crypto.advisor.service;
 import com.crypto.advisor.entity.CryptoStats;
 import com.crypto.advisor.exception.CryptoNotFoundException;
 import com.crypto.advisor.service.prediction.predict.CryptoPricePrediction;
+import com.crypto.advisor.service.prediction.representation.CryptoData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,7 @@ import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.math.BigDecimal;
 import java.text.DecimalFormat;
 import java.time.LocalDate;
@@ -26,8 +24,6 @@ import java.util.stream.Stream;
 public class CryptoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CryptoService.class);
-
-    private static final String CSV_FILE_NAME = "%s-prices.csv";
 
     private final CmcApiClient cmcApiClient;
     private final AlphaVantageClient avApiClient;
@@ -84,12 +80,12 @@ public class CryptoService {
         }
 
         TreeMap<String, String> sortedHistData = new TreeMap<>(histData);
-        var histDataCsvString = histMapToCsvString(sortedHistData, symbol);
-        writeHistDataToCsvFile(histDataCsvString, symbol);
+        List<CryptoData> cryptoData = new ArrayList<>();
+        sortedHistData.forEach((k, v) -> cryptoData.add(new CryptoData(k, symbol, Double.parseDouble(v))));
 
         double[] predictedPrices = new double[0];
         try {
-            predictedPrices = CryptoPricePrediction.predict(symbol);
+            predictedPrices = CryptoPricePrediction.predict(cryptoData);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -110,23 +106,6 @@ public class CryptoService {
         histData.forEach((key, value) -> preparedData.put(key, new BigDecimal(value)));
 
         return histMapToJsonString(preparedData);
-    }
-
-    private void writeHistDataToCsvFile(String histData, String symbol) {
-        var fileName = String.format(CSV_FILE_NAME, symbol);
-        var outputFile = new File(fileName);
-
-        try (var pw = new PrintWriter(outputFile)) {
-            pw.println(histData);
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private String histMapToCsvString(Map<String, String> histData, String symbol) {
-        var sb = new StringBuilder();
-        histData.forEach((k, v) -> sb.append(String.format("%s,%s,%s\n", k, symbol, v)));
-        return sb.toString();
     }
 
     private String histMapToJsonString(Map<String, BigDecimal> histData) {

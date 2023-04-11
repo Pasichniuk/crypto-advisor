@@ -1,7 +1,5 @@
 package com.crypto.advisor.service.prediction.representation;
 
-import com.opencsv.CSVReader;
-import com.opencsv.exceptions.CsvException;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
@@ -9,8 +7,6 @@ import org.nd4j.linalg.dataset.api.iterator.DataSetIterator;
 import org.nd4j.linalg.factory.Nd4j;
 import org.nd4j.linalg.primitives.Pair;
 
-import java.io.FileReader;
-import java.io.IOException;
 import java.util.*;
 
 public class CryptoDataSetIterator implements DataSetIterator {
@@ -28,14 +24,29 @@ public class CryptoDataSetIterator implements DataSetIterator {
     private final List<Pair<INDArray, INDArray>> test;
     private final transient List<CryptoData> train;
 
-    public CryptoDataSetIterator(String filename, String symbol, int miniBatchSize, int exampleLength, double splitRatio) {
-        List<CryptoData> stockDataList = readStockDataFromFile(filename, symbol);
+    public CryptoDataSetIterator(List<CryptoData> cryptoData, int miniBatchSize, int exampleLength, double splitRatio) {
+        this.min = calculateMin(cryptoData);
+        this.max = calculateMax(cryptoData);
         this.miniBatchSize = miniBatchSize;
         this.exampleLength = exampleLength;
-        int split = (int) Math.round(stockDataList.size() * splitRatio);
-        train = stockDataList.subList(0, split);
-        test = generateTestDataSet(stockDataList.subList(split, stockDataList.size()));
+        int split = (int) Math.round(cryptoData.size() * splitRatio);
+        train = cryptoData.subList(0, split);
+        test = generateTestDataSet(cryptoData.subList(split, cryptoData.size()));
         initializeOffsets();
+    }
+
+    private double calculateMin(List<CryptoData> cryptoData) {
+        return cryptoData.stream()
+                .min(Comparator.comparing(CryptoData::getClose))
+                .orElseThrow(NoSuchElementException::new)
+                .getClose();
+    }
+
+    private double calculateMax(List<CryptoData> cryptoData) {
+        return cryptoData.stream()
+                .max(Comparator.comparing(CryptoData::getClose))
+                .orElseThrow(NoSuchElementException::new)
+                .getClose();
     }
 
     private void initializeOffsets() {
@@ -166,28 +177,5 @@ public class CryptoDataSetIterator implements DataSetIterator {
             test.add(new Pair<>(input, label));
         }
         return test;
-    }
-
-    private List<CryptoData> readStockDataFromFile(String filename, String symbol) {
-        List<CryptoData> cryptoDataList = new ArrayList<>();
-        try {
-            max = Double.MIN_VALUE;
-            min = Double.MAX_VALUE;
-
-            List<String[]> list = new CSVReader(new FileReader(filename)).readAll(); // load all elements in a list
-            for (String[] arr : list) {
-                if (!arr[1].equals(symbol)) continue;
-                double[] nums = new double[VECTOR_SIZE];
-                for (int i = 0; i < arr.length - 2; i++) {
-                    nums[i] = Double.valueOf(arr[i + 2]);
-                    if (nums[i] > max) max = nums[i];
-                    if (nums[i] < min) min = nums[i];
-                }
-                cryptoDataList.add(new CryptoData(arr[0], arr[1], nums[0]));
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return cryptoDataList;
     }
 }

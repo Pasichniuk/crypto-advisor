@@ -1,11 +1,11 @@
 package com.crypto.advisor.service.prediction.predict;
 
 import com.crypto.advisor.service.prediction.model.RecurrentNets;
+import com.crypto.advisor.service.prediction.representation.CryptoData;
 import com.crypto.advisor.service.prediction.representation.CryptoDataSetIterator;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
-import org.nd4j.linalg.io.ClassPathResource;
 import org.nd4j.linalg.primitives.Pair;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,17 +20,16 @@ public class CryptoPricePrediction {
 
     private static final int EXAMPLE_LENGTH = 22; // time series length, assume 22 working days per month
 
-    public static double[] predict(String symbol) throws IOException {
-        String fileName = String.format("%s-prices.csv", symbol);
-        String file = new ClassPathResource(fileName).getFile().getAbsolutePath();
+    private CryptoPricePrediction() {}
 
+    public static double[] predict(List<CryptoData> cryptoData) throws IOException {
         int epochs = 30; // training epochs
         int batchSize = 64; // mini-batch size
         double splitRatio = 0.9; // 90% for training, 10% for testing
-        File locationToSave = new File("src/main/resources/crypto-price-model.zip");
+        var locationToSave = new File("src/main/resources/crypto-price-model.zip");
 
         LOGGER.info("Create dataSet iterator...");
-        CryptoDataSetIterator iterator = new CryptoDataSetIterator(file, symbol, batchSize, EXAMPLE_LENGTH, splitRatio);
+        CryptoDataSetIterator iterator = new CryptoDataSetIterator(cryptoData, batchSize, EXAMPLE_LENGTH, splitRatio);
 
         LOGGER.info("Load test dataset...");
         List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
@@ -73,13 +72,13 @@ public class CryptoPricePrediction {
         }
 
         LOGGER.info("Print out Predictions and Actual Values...");
-        LOGGER.info("Predict,Actual");
+        LOGGER.info("Predict, Actual");
 
         for (int i = 0; i < predicts.length; i++) {
-            LOGGER.info("{},{}", predicts[i], actuals[i]);
+            LOGGER.info("{}, {}", predicts[i], actuals[i]);
         }
 
-        LOGGER.info("Done...");
+        LOGGER.info("Done!");
 
         return predicts;
     }
