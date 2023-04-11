@@ -1,137 +1,148 @@
 package com.crypto.advisor.service;
 
-import java.util.*;
-import java.util.stream.Collectors;
-import java.io.File;
-import java.io.IOException;
-
-import com.fasterxml.jackson.databind.MappingIterator;
-import com.fasterxml.jackson.databind.ObjectReader;
+import com.crypto.advisor.entity.CryptoStats;
+import com.crypto.advisor.exception.CryptoNotFoundException;
+import com.crypto.advisor.service.prediction.predict.CryptoPricePrediction;
+import com.crypto.advisor.entity.CryptoData;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.beans.factory.annotation.Value;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.crypto.advisor.util.FileUtils;
-import com.crypto.advisor.entity.*;
-
-/**
- * Service responsible for processing crypto statistics
- */
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
+import java.time.LocalDate;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 public class CryptoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CryptoService.class);
 
-    private final Map<CryptoSymbol, CryptoStats> cryptoStatsPerSymbol;
+    private final CmcApiClient cmcApiClient;
+    private final AlphaVantageClient avApiClient;
 
     @Autowired
-    public CryptoService(@Value("${prices.directory}") String pricesDirectory, ObjectReader reader) {
-        this.cryptoStatsPerSymbol = buildCryptoStatsPerSymbol(pricesDirectory, reader);
+    public CryptoService(CmcApiClient cmcApiClient, AlphaVantageClient avApiClient) {
+        this.cmcApiClient = cmcApiClient;
+        this.avApiClient = avApiClient;
     }
 
-    public Map<CryptoSymbol, CryptoStats> getCryptoStatistics() {
-        return cryptoStatsPerSymbol;
-    }
+    public Set<CryptoStats> getCryptoStatistics() {
+        var apiResponse = cmcApiClient.getLatestListings();
+        var object = (JsonObject) JsonParser.parseString(apiResponse);
+        var data = object.get("data");
 
-    public CryptoStats getCryptoStatistics(CryptoSymbol cryptoSymbol) {
-        return cryptoStatsPerSymbol.get(cryptoSymbol);
-    }
-
-    public CryptoStats getCryptoWithHighestNormalizedRange() {
-        return cryptoStatsPerSymbol.values().stream()
-            .findFirst()
-            .orElseThrow(NoSuchElementException::new);
-    }
-
-    private static Map<CryptoSymbol, CryptoStats> buildCryptoStatsPerSymbol(
-        String pricesDirectory,
-        ObjectReader cryptoObjectReader
-    ) {
-
-        var files = FileUtils.listFilesInFolderByPattern(
-            new File(pricesDirectory), "_values.csv"
-        );
-
-        // TODO: this logic should definitely be re-worked
-
-        Map<CryptoSymbol, CryptoStats> cryptoStatsPerSymbolBuilder = new EnumMap<>(CryptoSymbol.class);
-
+        CryptoStats[] cryptoStats = new CryptoStats[0];
         try {
-
-            for (var file : files) {
-
-                try (MappingIterator<Crypto> iterator = cryptoObjectReader.readValues(file)) {
-                    var cryptos = iterator.readAll();
-                    cryptoStatsPerSymbolBuilder.put(getCryptoSymbolFromList(cryptos), buildCryptoStats(cryptos));
-                }
-            }
-
-        } catch (IOException | NoSuchElementException e) {
-            LOGGER.error(e.getMessage());
+            cryptoStats = new ObjectMapper().readValue(data.toString(), CryptoStats[].class);
+        } catch (Exception e) {
+            LOGGER.error("Failed to process json. Reason: " + e.getMessage());
         }
 
-        return cryptoStatsPerSymbolBuilder.entrySet().stream()
-            .sorted(
-                Map.Entry.comparingByValue(
-                    Comparator.comparingDouble(CryptoStats::getNormalizedRange).reversed()
-                )
-            )
-            .collect(
-                Collectors.collectingAndThen(
-                    Collectors.toMap(
-                        Map.Entry::getKey,
-                        Map.Entry::getValue,
-                        (oldValue, newValue) -> oldValue, LinkedHashMap::new
-                    ),
-                    Map::copyOf
-                )
-            );
+        return Stream.of(cryptoStats)
+                .sorted(Comparator.comparing(CryptoStats::getRank))
+                .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    private static CryptoStats buildCryptoStats(List<Crypto> cryptos) {
-
-        // TODO: review this
-
-        var cryptoStats = CryptoStats.builder()
-            .symbol(getCryptoSymbolFromList(cryptos))
-            .maxPrice(cryptos.stream()
-                .mapToDouble(Crypto::getPrice)
-                .max()
-                .orElseThrow(NoSuchElementException::new))
-            .minPrice(cryptos.stream()
-                .mapToDouble(Crypto::getPrice)
-                .min()
-                .orElseThrow(NoSuchElementException::new))
-            .oldestPrice(cryptos.stream()
-                .sorted(Comparator.comparing(Crypto::getTimestamp))
-                .mapToDouble(Crypto::getPrice)
+    public CryptoStats getCryptoStatisticsBySymbol(String symbol) {
+        return getCryptoStatistics().stream()
+                .filter(c -> c.getSymbol().equals(symbol))
                 .findFirst()
-                .orElseThrow(NoSuchElementException::new))
-            .newestPrice(cryptos.stream()
-                .sorted(Comparator.comparing(Crypto::getTimestamp).reversed())
-                .mapToDouble(Crypto::getPrice)
-                .findFirst()
-                .orElseThrow(NoSuchElementException::new))
-            .build();
+                .orElseThrow(() -> new CryptoNotFoundException(symbol));
+    }
 
-        cryptoStats.setNormalizedRange(
-            (cryptoStats.getMaxPrice() - cryptoStats.getMinPrice()) / cryptoStats.getMinPrice()
+    public String getHistoricalData(String function, String symbol) {
+        var apiResponse = avApiClient.getHistoricalData(function, symbol);
+        var object = (JsonObject) JsonParser.parseString(apiResponse);
+
+        JsonObject data;
+        try {
+            // TODO: generate this key from 'function'
+            data = object.get("Time Series (Digital Currency Daily)").getAsJsonObject();
+        } catch (Exception e) {
+            LOGGER.error("Failed to get json object. Reason: " + e.getMessage());
+            throw new IllegalArgumentException("Fiat cryptocurrencies are not supported yet!");
+        }
+
+        Map<String, String> histData = new LinkedHashMap<>();
+
+        for (String currentKey : data.keySet()) {
+            Object value = data.get(currentKey);
+
+            if (value instanceof JsonObject) {
+                var price = ((JsonObject) value).get("2b. high (USD)").toString().replace("\"", "");
+                var decimalFormat = new DecimalFormat("0.#####");
+                price = decimalFormat.format(Double.valueOf(price));
+                histData.put(currentKey, price);
+            }
+        }
+
+        var predictedPrices = getPredictedPrices(histData, symbol);
+        Map<String, BigDecimal> preparedData = new LinkedHashMap<>(predictedPrices);
+        histData.forEach((key, value) -> preparedData.put(key, new BigDecimal(value)));
+
+        return histMapToJsonString(preparedData);
+    }
+
+    private Map<String, BigDecimal> getPredictedPrices(Map<String, String> histData, String symbol) {
+        List<CryptoData> cryptoData = new ArrayList<>();
+        TreeMap<String, String> sortedHistData = new TreeMap<>(histData);
+        sortedHistData.forEach((k, v) -> cryptoData.add(new CryptoData(k, symbol, Double.parseDouble(v))));
+
+        double[] predictedPrices = new double[0];
+        try {
+            predictedPrices = CryptoPricePrediction.predict(cryptoData);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        var currentDate = LocalDate.now();
+        var daysCount = new AtomicInteger(predictedPrices.length);
+
+        return Arrays.stream(predictedPrices)
+                .boxed()
+                .map(BigDecimal::new)
+                .collect(Collectors.toMap(
+                        x -> currentDate.plusDays(daysCount.getAndDecrement()).toString(),
+                        price -> price,
+                        (x, y) -> y,
+                        LinkedHashMap::new)
+                );
+    }
+
+    private String histMapToJsonString(Map<String, BigDecimal> histData) {
+        var sb = new StringBuilder();
+        var counter = new AtomicInteger(histData.size() - 1000);
+        var certainty = new AtomicBoolean(false);
+        var rowFormat = "{\"c\":[{\"v\":\"%s\",\"f\":null},{\"v\":%s,\"f\":null},{\"v\":%s}]},";
+
+        sb.append("{" +
+                "\"cols\": [" +
+                "{\"id\":\"\",\"label\":\"Date\",\"type\":\"string\"}," +
+                "{\"id\":\"\",\"label\":\"Price\",\"type\":\"number\"}," +
+                "{\"id\":\"\",\"role\":\"certainty\",\"type\":\"boolean\"}" +
+                "]," +
+                "\"rows\": ["
         );
 
-        return cryptoStats;
-    }
+        histData.forEach((date, price) -> {
+            if (counter.getAndDecrement() == 0) {
+                certainty.set(true);
+            }
+            sb.append(String.format(rowFormat, date, price, certainty));
+        });
 
-    private static CryptoSymbol getCryptoSymbolFromList(List<Crypto> cryptos) {
+        sb.deleteCharAt(sb.length() - 1);
+        sb.append("]}");
 
-        // TODO: this method will be likely retired after the logic re-design
-
-        return cryptos.stream()
-            .map(Crypto::getSymbol)
-            .distinct()
-            .findFirst()
-            .orElseThrow(NoSuchElementException::new);
+        return sb.toString();
     }
 }

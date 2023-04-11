@@ -1,32 +1,95 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Statistics</title>
     <link th:href="@{/styles/style.css}" rel="stylesheet"/>
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    <script type="text/javascript" th:inline="javascript">
+        google.charts.load('current', {'packages': ['corechart']});
+        google.charts.setOnLoadCallback(drawChart);
+
+        function drawChart() {
+            var cryptoGraphJson = [[${historicalData}]];
+            var data = new google.visualization.DataTable(JSON.parse(cryptoGraphJson));
+
+            var options = {
+                width: 1950,
+                height: 500,
+                chartArea: {left:"5%", top:"12%", width:"90%", height:"75%"},
+                hAxis: {
+                    direction: -1,
+                    titleTextStyle: {color: '#FFF', fontSize: 12},
+                    textStyle: {color: '#FFF', fontSize: 12}
+                },
+                vAxis: {
+                    titleTextStyle: {color: '#FFF', fontSize: 14},
+                    textStyle: {color: '#FFF', fontSize: 14}
+                },
+                series: {
+                    0: { targetAxisIndex: 1 }
+                },
+                backgroundColor: {
+                    fill: 'transparent'
+                },
+                legend: 'none',
+                tooltip: {
+                    textStyle: {color: '#3BF4FB', fontSize: 14}
+                },
+                titleTextStyle: {color: '#3BF4FB', fontSize: 12},
+                colors:['#3BF4FB','#004411']
+            };
+
+            var chart = new google.visualization.LineChart(document.getElementById('curve_chart'));
+            chart.draw(data, options);
+        }
+    </script>
 </head>
 <body>
-<table class="styled-table">
+<header>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}"><h2><b>Crypto Advisor</b></h2></a></li>
+            <li><a th:href="@{/stats}">HOME</a></li>
+            <li><a th:href="@{/about}">ABOUT</a></li>
+            <li><a th:href="@{/contacts}">CONTACTS</a></li>
+        </ul>
+    </nav>
+</header>
+<table class="styled-table-2">
     <thead>
     <tr>
+        <th> Rank </th>
         <th> Name </th>
-        <th> Min Price </th>
-        <th> Max Price </th>
-        <th> Oldest Price </th>
-        <th> Newest Price </th>
-        <th> Normalized Range </th>
+        <th> Symbol </th>
+        <th> Price </th>
+        <th> 1h % </th>
+        <th> 24h % </th>
+        <th> 7d % </th>
+        <th> 30d % </th>
+        <th> 60d % </th>
+        <th> 90d % </th>
+        <th> Market Cap </th>
     </tr>
     </thead>
     <tbody>
     <tr>
-        <td><span th:text="${cryptoStats.symbol}"> Name </span></td>
-        <td><span th:text="${cryptoStats.minPrice}"> Min Price </span></td>
-        <td><span th:text="${cryptoStats.maxPrice}"> Max Price </span></td>
-        <td><span th:text="${cryptoStats.oldestPrice}"> Oldest Price </span></td>
-        <td><span th:text="${cryptoStats.newestPrice}"> Newest Price </span></td>
-        <td><span th:text="${cryptoStats.normalizedRange}"> Normalized Range </span></td>
+        <td><span th:text="${cryptoStats.rank}"> Rank </span></td>
+        <td><span th:text="${cryptoStats.name}"> Name </span></td>
+        <td><span th:text="${cryptoStats.symbol}"> Symbol </span></td>
+        <td><span th:text="${cryptoStats.price}"> Price </span></td>
+        <td><span th:text="${cryptoStats.percentChangeHour}"> 1h % </span></td>
+        <td><span th:text="${cryptoStats.percentChangeDay}"> 24h % </span></td>
+        <td><span th:text="${cryptoStats.percentChangeWeek}"> 7d % </span></td>
+        <td><span th:text="${cryptoStats.percentChangeMonth}"> 30d % </span></td>
+        <td><span th:text="${cryptoStats.percentChangeTwoMonths}"> 60d % </span></td>
+        <td><span th:text="${cryptoStats.percentChangeThreeMonths}"> 90d % </span></td>
+        <td><span th:text="${cryptoStats.marketCap}"> Market Cap </span></td>
     </tr>
     </tbody>
 </table>
+<div class="styled-chart">
+    <div id="curve_chart"></div>
+</div>
 </body>
 </html>

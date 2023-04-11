@@ -1,20 +1,35 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Statistics</title>
     <link th:href="@{/styles/style.css}" rel="stylesheet"/>
 </head>
 <body>
+<header>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}"><h2><b>Crypto Advisor</b></h2></a></li>
+            <li><a th:href="@{/stats}">HOME</a></li>
+            <li><a th:href="@{/about}">ABOUT</a></li>
+            <li><a th:href="@{/contacts}">CONTACTS</a></li>
+        </ul>
+    </nav>
+</header>
 <table class="styled-table">
     <thead>
     <tr>
+        <th> Rank </th>
         <th> Name </th>
-        <th> Min Price </th>
-        <th> Max Price </th>
-        <th> Oldest Price </th>
-        <th> Newest Price </th>
-        <th> Normalized Range </th>
+        <th> Symbol </th>
+        <th> Price </th>
+        <th> 1h % </th>
+        <th> 24h % </th>
+        <th> 7d % </th>
+        <th> 30d % </th>
+        <th> 60d % </th>
+        <th> Market Cap </th>
+        <th> Actions </th>
     </tr>
     </thead>
     <tbody>
@@ -22,12 +37,17 @@
         <td colspan="2"> No cryptos available </td>
     </tr>
     <tr th:each="cryptoStats : ${cryptoStatsSet}">
-        <td><span th:text="${cryptoStats.symbol}"> Name </span></td>
-        <td><span th:text="${cryptoStats.minPrice}"> Min Price </span></td>
-        <td><span th:text="${cryptoStats.maxPrice}"> Max Price </span></td>
-        <td><span th:text="${cryptoStats.oldestPrice}"> Oldest Price </span></td>
-        <td><span th:text="${cryptoStats.newestPrice}"> Newest Price </span></td>
-        <td><span th:text="${cryptoStats.normalizedRange}"> Normalized Range </span></td>
+        <td><span th:text="${cryptoStats.rank}"> Rank </span></td>
+        <td><span th:text="${cryptoStats.name}"> Name </span></td>
+        <td><span th:text="${cryptoStats.symbol}"> Symbol </span></td>
+        <td><span th:text="${cryptoStats.price}"> Price </span></td>
+        <td><span th:text="${cryptoStats.percentChangeHour}"> 1h % </span></td>
+        <td><span th:text="${cryptoStats.percentChangeDay}"> 24h % </span></td>
+        <td><span th:text="${cryptoStats.percentChangeWeek}"> 7d % </span></td>
+        <td><span th:text="${cryptoStats.percentChangeMonth}"> 30d % </span></td>
+        <td><span th:text="${cryptoStats.percentChangeTwoMonths}"> 60d % </span></td>
+        <td><span th:text="${cryptoStats.marketCap}"> Market Cap </span></td>
+        <td><a th:href="@{/stats/{symbol}(symbol=${cryptoStats.symbol})}"}> View </a></td>
     </tr>
     </tbody>
 </table>
