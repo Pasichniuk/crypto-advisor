@@ -1,6 +1,5 @@
 package com.crypto.advisor.controller;
 
-import com.crypto.advisor.exception.CryptoNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -38,7 +37,7 @@ public class CryptoController {
             // TODO: get function from PathVariable
             model.addAttribute("historicalData", cryptoService.getHistoricalData("DIGITAL_CURRENCY_DAILY", symbol));
             return CRYPTO_STATS_PAGE_PATH;
-        } catch (CryptoNotFoundException e) {
+        } catch (IllegalArgumentException e) {
             model.addAttribute("message", e.getMessage());
             return "error";
         }

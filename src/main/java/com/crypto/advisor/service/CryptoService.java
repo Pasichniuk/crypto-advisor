@@ -3,7 +3,7 @@ package com.crypto.advisor.service;
 import com.crypto.advisor.entity.CryptoStats;
 import com.crypto.advisor.exception.CryptoNotFoundException;
 import com.crypto.advisor.service.prediction.predict.CryptoPricePrediction;
-import com.crypto.advisor.service.prediction.representation.CryptoData;
+import com.crypto.advisor.entity.CryptoData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,7 +36,6 @@ public class CryptoService {
 
     public Set<CryptoStats> getCryptoStatistics() {
         var apiResponse = cmcApiClient.getLatestListings();
-
         var object = (JsonObject) JsonParser.parseString(apiResponse);
         var data = object.get("data");
 
@@ -61,10 +60,16 @@ public class CryptoService {
 
     public String getHistoricalData(String function, String symbol) {
         var apiResponse = avApiClient.getHistoricalData(function, symbol);
-
         var object = (JsonObject) JsonParser.parseString(apiResponse);
-        // TODO: generate this key from function
-        var data = object.get("Time Series (Digital Currency Daily)").getAsJsonObject();
+
+        JsonObject data;
+        try {
+            // TODO: generate this key from 'function'
+            data = object.get("Time Series (Digital Currency Daily)").getAsJsonObject();
+        } catch (Exception e) {
+            LOGGER.error("Failed to get json object. Reason: " + e.getMessage());
+            throw new IllegalArgumentException("Fiat cryptocurrencies are not supported yet!");
+        }
 
         Map<String, String> histData = new LinkedHashMap<>();
 
@@ -79,8 +84,16 @@ public class CryptoService {
             }
         }
 
-        TreeMap<String, String> sortedHistData = new TreeMap<>(histData);
+        var predictedPrices = getPredictedPrices(histData, symbol);
+        Map<String, BigDecimal> preparedData = new LinkedHashMap<>(predictedPrices);
+        histData.forEach((key, value) -> preparedData.put(key, new BigDecimal(value)));
+
+        return histMapToJsonString(preparedData);
+    }
+
+    private Map<String, BigDecimal> getPredictedPrices(Map<String, String> histData, String symbol) {
         List<CryptoData> cryptoData = new ArrayList<>();
+        TreeMap<String, String> sortedHistData = new TreeMap<>(histData);
         sortedHistData.forEach((k, v) -> cryptoData.add(new CryptoData(k, symbol, Double.parseDouble(v))));
 
         double[] predictedPrices = new double[0];
@@ -93,7 +106,8 @@ public class CryptoService {
         var currentDate = LocalDate.now();
         var daysCount = new AtomicInteger(predictedPrices.length);
 
-        Map<String, BigDecimal> bigDecimalPrices = Arrays.stream(predictedPrices).boxed()
+        return Arrays.stream(predictedPrices)
+                .boxed()
                 .map(BigDecimal::new)
                 .collect(Collectors.toMap(
                         x -> currentDate.plusDays(daysCount.getAndDecrement()).toString(),
@@ -101,11 +115,6 @@ public class CryptoService {
                         (x, y) -> y,
                         LinkedHashMap::new)
                 );
-
-        Map<String, BigDecimal> preparedData = new LinkedHashMap<>(bigDecimalPrices);
-        histData.forEach((key, value) -> preparedData.put(key, new BigDecimal(value)));
-
-        return histMapToJsonString(preparedData);
     }
 
     private String histMapToJsonString(Map<String, BigDecimal> histData) {

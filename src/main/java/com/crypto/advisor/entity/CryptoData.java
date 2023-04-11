@@ -1,4 +1,4 @@
-package com.crypto.advisor.service.prediction.representation;
+package com.crypto.advisor.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,5 +8,5 @@ import lombok.Data;
 public class CryptoData {
     private String date;
     private String symbol;
-    private double close;
+    private double price;
 }

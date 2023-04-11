@@ -1,8 +1,7 @@
 package com.crypto.advisor.service.prediction.predict;
 
 import com.crypto.advisor.service.prediction.model.RecurrentNets;
-import com.crypto.advisor.service.prediction.representation.CryptoData;
-import com.crypto.advisor.service.prediction.representation.CryptoDataSetIterator;
+import com.crypto.advisor.entity.CryptoData;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;
@@ -23,62 +22,63 @@ public class CryptoPricePrediction {
     private CryptoPricePrediction() {}
 
     public static double[] predict(List<CryptoData> cryptoData) throws IOException {
-        int epochs = 30; // training epochs
-        int batchSize = 64; // mini-batch size
-        double splitRatio = 0.9; // 90% for training, 10% for testing
-        var locationToSave = new File("src/main/resources/crypto-price-model.zip");
+        var modelFile = new File("src/main/resources/crypto-price-model.zip");
 
-        LOGGER.info("Create dataSet iterator...");
-        CryptoDataSetIterator iterator = new CryptoDataSetIterator(cryptoData, batchSize, EXAMPLE_LENGTH, splitRatio);
+        double splitRatio = 0.9; // 90% for training, 10% for testing
+        int trainingEpochs = 30;
+        int miniBatchSize = 64;
+
+        LOGGER.info("Create data set iterator...");
+        var iterator = new CryptoDataSetIterator(cryptoData, miniBatchSize, EXAMPLE_LENGTH, splitRatio);
 
         LOGGER.info("Load test dataset...");
-        List<Pair<INDArray, INDArray>> test = iterator.getTestDataSet();
+        var testDataSet = iterator.getTestDataSet();
 
         MultiLayerNetwork net;
 
-        boolean trainModel = false;
+        boolean trainModel = false; // true -> train & use the model; false -> simply use the model
         if (trainModel) {
             LOGGER.info("Build lstm networks...");
             net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
 
             LOGGER.info("Training...");
-            for (int i = 0; i < epochs; i++) {
+            for (int i = 0; i < trainingEpochs; i++) {
                 while (iterator.hasNext()) net.fit(iterator.next());
                 iterator.reset();
                 net.rnnClearPreviousState();
             }
 
             LOGGER.info("Saving model...");
-            ModelSerializer.writeModel(net, locationToSave, true);
+            ModelSerializer.writeModel(net, modelFile, true);
         }
 
         LOGGER.info("Load model...");
-        net = ModelSerializer.restoreMultiLayerNetwork(locationToSave);
+        net = ModelSerializer.restoreMultiLayerNetwork(modelFile);
 
         LOGGER.info("Testing...");
         double max = iterator.getMax();
         double min = iterator.getMin();
 
-        return predictPriceOneAhead(net, test, max, min);
+        return predictPriceOneAhead(net, testDataSet, max, min);
     }
 
+    // uncomment code to see predicted/actual prices
     private static double[] predictPriceOneAhead(MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min) {
         double[] predicts = new double[testData.size()];
-        double[] actuals = new double[testData.size()];
+        //double[] actuals = new double[testData.size()];
 
         for (int i = 0; i < testData.size(); i++) {
             predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(EXAMPLE_LENGTH - 1) * (max - min) + min;
-            actuals[i] = testData.get(i).getValue().getDouble(0);
+            //actuals[i] = testData.get(i).getValue().getDouble(0);
         }
 
-        LOGGER.info("Print out Predictions and Actual Values...");
+        /*
         LOGGER.info("Predict, Actual");
-
         for (int i = 0; i < predicts.length; i++) {
             LOGGER.info("{}, {}", predicts[i], actuals[i]);
         }
-
         LOGGER.info("Done!");
+        */
 
         return predicts;
     }
