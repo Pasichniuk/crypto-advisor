@@ -1,5 +1,5 @@
 ## Crypto Advisor
 
- Home page displays real-time statistical data on top cryptocurrencies using several metrics. 
- On the individual page of a certain cryptocurrency, in addition to current data, you can also 
- see a graph with historical data and price prediction for the near future.
+Crypto Advisor is a service that allows you to get up-to-date statistical data on top cryptocurrencies 
+using a convenient, simple and pleasant interface. The main feature is price prediction using a neural 
+network, visualized in the form of a line chart.
