@@ -3,7 +3,6 @@ package com.crypto.advisor.controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -11,11 +10,13 @@ import org.springframework.ui.Model;
 import com.crypto.advisor.service.CryptoService;
 
 @Controller
-@RequestMapping("stats")
 public class CryptoController {
 
     private static final String ALL_CRYPTO_STATS_PAGE_PATH = "all-crypto-stats";
     private static final String CRYPTO_STATS_PAGE_PATH = "crypto-stats";
+    private static final String CONTACTS_PAGE_PATH = "contacts";
+    private static final String ABOUT_PAGE_PATH = "about";
+    private static final String ERROR_PAGE_PATH = "error";
 
     private final CryptoService cryptoService;
 
@@ -24,13 +25,13 @@ public class CryptoController {
         this.cryptoService = cryptoService;
     }
 
-    @GetMapping
+    @GetMapping("/stats")
     public String getCryptoStatistics(Model model) {
         model.addAttribute("cryptoStatsSet", cryptoService.getCryptoStatistics());
         return ALL_CRYPTO_STATS_PAGE_PATH;
     }
 
-    @GetMapping("{symbol}")
+    @GetMapping("/stats/{symbol}")
     public String getCryptoStatistics(@PathVariable @NonNull String symbol, Model model) {
         try {
             model.addAttribute("cryptoStats", cryptoService.getCryptoStatisticsBySymbol(symbol));
@@ -39,7 +40,17 @@ public class CryptoController {
             return CRYPTO_STATS_PAGE_PATH;
         } catch (IllegalArgumentException e) {
             model.addAttribute("message", e.getMessage());
-            return "error";
+            return ERROR_PAGE_PATH;
         }
+    }
+
+    @GetMapping("/contacts")
+    public String contacts() {
+        return CONTACTS_PAGE_PATH;
+    }
+
+    @GetMapping("/about")
+    public String about() {
+        return ABOUT_PAGE_PATH;
     }
 }
