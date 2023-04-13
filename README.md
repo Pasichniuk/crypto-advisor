@@ -1,14 +1,5 @@
-# Crypto Advisor
+## Crypto Advisor
 
-## Available endpoints:
-
-#### `/` - home page;
-#### `/stats` - returns a descending sorted list of all the cryptos, comparing the normalized range;
-#### `/stats/{cryptoSymbol}` - return the oldest/newest/min/max values for a requested crypto;
-#### `/stats/best` - returns the crypto with the highest normalized range.
-
-## Steps to run in Docker:
-#### 1) `./gradlew clean build` 
-#### 2) `./gradlew build` 
-#### 3) `docker build -t crypto-advisor .` 
-#### 4) `docker run -p 8080:8080 crypto-advisor` 
+Crypto Advisor is a service that allows you to get up-to-date statistical data on top cryptocurrencies 
+using a convenient, simple and pleasant interface. The main feature is price prediction using a neural 
+network, visualized in the form of a line chart.

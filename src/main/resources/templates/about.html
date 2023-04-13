@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>About</title>
+    <link th:href="@{/styles/style.css}" rel="stylesheet"/>
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}"><h2><b>Crypto Advisor</b></h2></a></li>
+            <li><a th:href="@{/stats}">HOME</a></li>
+            <li><a th:href="@{/about}">ABOUT</a></li>
+            <li><a th:href="@{/contacts}">CONTACTS</a></li>
+        </ul>
+    </nav>
+</header>
+    <h2>Crypto Advisor is a service that allows you to get up-to-date statistical data
+        on top cryptocurrencies using a convenient, simple and pleasant interface.
+        The main feature is price prediction using a neural network, visualized in the form of a line chart.
+    </h2>
+</body>
+</html>
