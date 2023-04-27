@@ -59,13 +59,12 @@ public class CryptoService {
                 .orElseThrow(() -> new CryptoNotFoundException(symbol));
     }
 
-    public String getHistoricalData(String function, String symbol) {
+    public String getHistoricalAndPredictedData(String function, String symbol) {
         var apiResponse = avApiClient.getHistoricalData(function, symbol);
         var object = (JsonObject) JsonParser.parseString(apiResponse);
 
         JsonObject data;
         try {
-            // TODO: generate this key from 'function'
             data = object.get("Time Series (Digital Currency Daily)").getAsJsonObject();
         } catch (Exception e) {
             LOGGER.error("Failed to get json object. Reason: " + e.getMessage());
@@ -89,7 +88,7 @@ public class CryptoService {
         Map<String, BigDecimal> preparedData = new LinkedHashMap<>(predictedPrices);
         histData.forEach((key, value) -> preparedData.put(key, new BigDecimal(value)));
 
-        return histMapToJsonString(preparedData);
+        return mapToJsonString(preparedData);
     }
 
     private Map<String, BigDecimal> getPredictedPrices(Map<String, String> histData, String symbol) {
@@ -118,9 +117,9 @@ public class CryptoService {
                 );
     }
 
-    private String histMapToJsonString(Map<String, BigDecimal> histData) {
+    private String mapToJsonString(Map<String, BigDecimal> data) {
         var sb = new StringBuilder();
-        var counter = new AtomicInteger(histData.size() - 1000);
+        var counter = new AtomicInteger(data.size() - 1000);
         var certainty = new AtomicBoolean(false);
         var rowFormat = "{\"c\":[{\"v\":\"%s\",\"f\":null},{\"v\":%s,\"f\":null},{\"v\":%s}]},";
 
@@ -133,7 +132,7 @@ public class CryptoService {
                 "\"rows\": ["
         );
 
-        histData.forEach((date, price) -> {
+        data.forEach((date, price) -> {
             if (counter.getAndDecrement() == 0) {
                 certainty.set(true);
             }

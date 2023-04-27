@@ -35,8 +35,7 @@ public class CryptoController {
     public String getCryptoStatistics(@PathVariable @NonNull String symbol, Model model) {
         try {
             model.addAttribute("cryptoStats", cryptoService.getCryptoStatisticsBySymbol(symbol));
-            // TODO: get function from PathVariable
-            model.addAttribute("historicalData", cryptoService.getHistoricalData("DIGITAL_CURRENCY_DAILY", symbol));
+            model.addAttribute("historicalData", cryptoService.getHistoricalAndPredictedData("DIGITAL_CURRENCY_DAILY", symbol));
             return CRYPTO_STATS_PAGE_PATH;
         } catch (IllegalArgumentException e) {
             model.addAttribute("message", e.getMessage());
