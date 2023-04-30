@@ -10,7 +10,10 @@ import org.springframework.ui.Model;
 
 import com.crypto.advisor.service.CryptoService;
 
+import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
@@ -31,15 +34,26 @@ public class CryptoController {
 
     @GetMapping("/stats")
     public String getCryptoStatistics(Model model) {
-        var cryptoStatistics = cryptoService.getCryptoStatistics();
-        model.addAttribute("cryptoStatsSet", cryptoStatistics);
-        model.addAttribute("trendingCryptoList",
-                cryptoStatistics.stream()
-                        .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek).reversed())
-                        .limit(3)
-                        .collect(Collectors.toList())
-        );
+        var cryptoStats = cryptoService.getCryptoStatistics();
+        model.addAttribute("cryptoStatsSet", cryptoStats);
+
+        addTrendingCryptosToModel(model, cryptoStats);
+
         return ALL_CRYPTO_STATS_PAGE_PATH;
+    }
+
+    private void addTrendingCryptosToModel(Model model, Set<CryptoStats> cryptoStats) {
+        List<CryptoStats> cryptoStatsCopy = new ArrayList<>();
+        cryptoStats.forEach(stats -> cryptoStatsCopy.add(new CryptoStats(stats)));
+
+        var trendingCryptos = List.copyOf(cryptoStatsCopy).stream()
+                .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek).reversed())
+                .limit(3)
+                .collect(Collectors.toList());
+
+        trendingCryptos.forEach(crypto -> crypto.setRank((long) trendingCryptos.indexOf(crypto) + 1));
+
+        model.addAttribute("trendingCryptoList", trendingCryptos);
     }
 
     @GetMapping("/stats/{symbol}")
