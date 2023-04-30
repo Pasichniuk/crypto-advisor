@@ -1,5 +1,6 @@
 package com.crypto.advisor.controller;
 
+import com.crypto.advisor.entity.CryptoStats;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +9,9 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import com.crypto.advisor.service.CryptoService;
+
+import java.util.Comparator;
+import java.util.stream.Collectors;
 
 @Controller
 public class CryptoController {
@@ -27,7 +31,14 @@ public class CryptoController {
 
     @GetMapping("/stats")
     public String getCryptoStatistics(Model model) {
-        model.addAttribute("cryptoStatsSet", cryptoService.getCryptoStatistics());
+        var cryptoStatistics = cryptoService.getCryptoStatistics();
+        model.addAttribute("cryptoStatsSet", cryptoStatistics);
+        model.addAttribute("trendingCryptoList",
+                cryptoStatistics.stream()
+                        .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek).reversed())
+                        .limit(3)
+                        .collect(Collectors.toList())
+        );
         return ALL_CRYPTO_STATS_PAGE_PATH;
     }
 
