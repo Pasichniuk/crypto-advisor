@@ -37,15 +37,14 @@ public class CryptoController {
         var cryptoStats = cryptoService.getCryptoStatistics();
         model.addAttribute("cryptoStatsSet", cryptoStats);
 
-        addTrendingCryptosToModel(model, cryptoStats);
+        addTrendingCryptos(model, cryptoStats);
+        addStableCryptos(model, cryptoStats);
 
         return ALL_CRYPTO_STATS_PAGE_PATH;
     }
 
-    private void addTrendingCryptosToModel(Model model, Set<CryptoStats> cryptoStats) {
-        List<CryptoStats> cryptoStatsCopy = new ArrayList<>();
-        cryptoStats.forEach(stats -> cryptoStatsCopy.add(new CryptoStats(stats)));
-
+    private void addTrendingCryptos(Model model, Set<CryptoStats> cryptoStats) {
+        var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
         var trendingCryptos = List.copyOf(cryptoStatsCopy).stream()
                 .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek).reversed())
                 .limit(3)
@@ -53,7 +52,25 @@ public class CryptoController {
 
         trendingCryptos.forEach(crypto -> crypto.setRank((long) trendingCryptos.indexOf(crypto) + 1));
 
-        model.addAttribute("trendingCryptoList", trendingCryptos);
+        model.addAttribute("trendingCryptos", trendingCryptos);
+    }
+
+    private void addStableCryptos(Model model, Set<CryptoStats> cryptoStats) {
+        var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
+        var stableCryptos = List.copyOf(cryptoStatsCopy).stream()
+                .sorted(Comparator.comparingDouble(s -> Math.abs(s.getPercentChangeThreeMonths())))
+                .limit(3)
+                .collect(Collectors.toList());
+
+        stableCryptos.forEach(crypto -> crypto.setRank((long) stableCryptos.indexOf(crypto) + 1));
+
+        model.addAttribute("stableCryptos", stableCryptos);
+    }
+
+    private List<CryptoStats> getCryptoStatsCopy(Set<CryptoStats> cryptoStats) {
+        List<CryptoStats> cryptoStatsCopy = new ArrayList<>();
+        cryptoStats.forEach(stats -> cryptoStatsCopy.add(new CryptoStats(stats)));
+        return cryptoStatsCopy;
     }
 
     @GetMapping("/stats/{symbol}")

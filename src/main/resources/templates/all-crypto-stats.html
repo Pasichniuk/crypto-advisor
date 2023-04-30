@@ -17,20 +17,38 @@
     </nav>
 </header>
 
-<table class="widget-table">
+<table class="widget-table-1">
     <thead>
     <tr>
         <th class="widget-td" colspan="3" style="text-align:center"> <b>TRENDING</b> </th>
     </tr>
     </thead>
     <tbody>
-    <tr th:if="${trendingCryptoList.isEmpty}">
+    <tr th:if="${trendingCryptos.isEmpty}">
         <td colspan="3"> No cryptos available </td>
     </tr>
-    <tr th:each="cryptoStats : ${trendingCryptoList}">
-        <td class="widget-td" style="text-align:left"><span th:text="${cryptoStats.rank}"> Rank </span></td>
+    <tr th:each="cryptoStats : ${trendingCryptos}">
+        <td class="widget-td" style="text-align:left"><span th:text="${cryptoStats.rank}"> Index </span></td>
         <td class="widget-td" style="text-align:left"><span th:text="${cryptoStats.name + ' (' + cryptoStats.symbol} + ')'"> Name </span></td>
         <td class="widget-td" style="text-align:right"><span th:text="${cryptoStats.percentChangeWeek + '%'}"> 7d % </span></td>
+    </tr>
+    </tbody>
+</table>
+
+<table class="widget-table-2">
+    <thead>
+    <tr>
+        <th class="widget-td" colspan="3" style="text-align:center"> <b>STABLE</b> </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${stableCryptos.isEmpty}">
+        <td colspan="3"> No cryptos available </td>
+    </tr>
+    <tr th:each="cryptoStats : ${stableCryptos}">
+        <td class="widget-td" style="text-align:left"><span th:text="${cryptoStats.rank}"> Index </span></td>
+        <td class="widget-td" style="text-align:left"><span th:text="${cryptoStats.name + ' (' + cryptoStats.symbol} + ')'"> Name </span></td>
+        <td class="widget-td" style="text-align:right"><span th:text="${cryptoStats.percentChangeThreeMonths + '%'}"> 90d % </span></td>
     </tr>
     </tbody>
 </table>
