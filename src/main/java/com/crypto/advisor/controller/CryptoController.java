@@ -38,6 +38,7 @@ public class CryptoController {
         model.addAttribute("cryptoStatsSet", cryptoStats);
 
         addTrendingCryptos(model, cryptoStats);
+        addDeviatingCryptos(model, cryptoStats);
         addStableCryptos(model, cryptoStats);
 
         return ALL_CRYPTO_STATS_PAGE_PATH;
@@ -53,6 +54,18 @@ public class CryptoController {
         trendingCryptos.forEach(crypto -> crypto.setRank((long) trendingCryptos.indexOf(crypto) + 1));
 
         model.addAttribute("trendingCryptos", trendingCryptos);
+    }
+
+    private void addDeviatingCryptos(Model model, Set<CryptoStats> cryptoStats) {
+        var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
+        var deviatingCryptos = List.copyOf(cryptoStatsCopy).stream()
+                .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek))
+                .limit(3)
+                .collect(Collectors.toList());
+
+        deviatingCryptos.forEach(crypto -> crypto.setRank((long) deviatingCryptos.indexOf(crypto) + 1));
+
+        model.addAttribute("deviatingCryptos", deviatingCryptos);
     }
 
     private void addStableCryptos(Model model, Set<CryptoStats> cryptoStats) {

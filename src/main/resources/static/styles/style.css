@@ -47,6 +47,14 @@ body {
 	transform: translate(-85%, -85%);
 }
 
+.widget-table-3 {
+	width: 350px;
+	position: absolute;
+	top: 27%;
+	left: 88%;
+	transform: translate(-85%, -85%);
+}
+
 .styled-chart {
 	position: absolute;
 	top: 60%;
