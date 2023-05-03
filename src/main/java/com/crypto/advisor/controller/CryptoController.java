@@ -1,5 +1,6 @@
 package com.crypto.advisor.controller;
 
+import com.crypto.advisor.entity.CryptoStats;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -8,6 +9,12 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 
 import com.crypto.advisor.service.CryptoService;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Controller
 public class CryptoController {
@@ -27,16 +34,63 @@ public class CryptoController {
 
     @GetMapping("/stats")
     public String getCryptoStatistics(Model model) {
-        model.addAttribute("cryptoStatsSet", cryptoService.getCryptoStatistics());
+        var cryptoStats = cryptoService.getCryptoStatistics();
+        model.addAttribute("cryptoStatsSet", cryptoStats);
+
+        addTrendingCryptos(model, cryptoStats);
+        addDeviatingCryptos(model, cryptoStats);
+        addStableCryptos(model, cryptoStats);
+
         return ALL_CRYPTO_STATS_PAGE_PATH;
+    }
+
+    private void addTrendingCryptos(Model model, Set<CryptoStats> cryptoStats) {
+        var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
+        var trendingCryptos = List.copyOf(cryptoStatsCopy).stream()
+                .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek).reversed())
+                .limit(3)
+                .collect(Collectors.toList());
+
+        trendingCryptos.forEach(crypto -> crypto.setRank((long) trendingCryptos.indexOf(crypto) + 1));
+
+        model.addAttribute("trendingCryptos", trendingCryptos);
+    }
+
+    private void addDeviatingCryptos(Model model, Set<CryptoStats> cryptoStats) {
+        var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
+        var deviatingCryptos = List.copyOf(cryptoStatsCopy).stream()
+                .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek))
+                .limit(3)
+                .collect(Collectors.toList());
+
+        deviatingCryptos.forEach(crypto -> crypto.setRank((long) deviatingCryptos.indexOf(crypto) + 1));
+
+        model.addAttribute("deviatingCryptos", deviatingCryptos);
+    }
+
+    private void addStableCryptos(Model model, Set<CryptoStats> cryptoStats) {
+        var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
+        var stableCryptos = List.copyOf(cryptoStatsCopy).stream()
+                .sorted(Comparator.comparingDouble(s -> Math.abs(s.getPercentChangeThreeMonths())))
+                .limit(3)
+                .collect(Collectors.toList());
+
+        stableCryptos.forEach(crypto -> crypto.setRank((long) stableCryptos.indexOf(crypto) + 1));
+
+        model.addAttribute("stableCryptos", stableCryptos);
+    }
+
+    private List<CryptoStats> getCryptoStatsCopy(Set<CryptoStats> cryptoStats) {
+        List<CryptoStats> cryptoStatsCopy = new ArrayList<>();
+        cryptoStats.forEach(stats -> cryptoStatsCopy.add(new CryptoStats(stats)));
+        return cryptoStatsCopy;
     }
 
     @GetMapping("/stats/{symbol}")
     public String getCryptoStatistics(@PathVariable @NonNull String symbol, Model model) {
         try {
             model.addAttribute("cryptoStats", cryptoService.getCryptoStatisticsBySymbol(symbol));
-            // TODO: get function from PathVariable
-            model.addAttribute("historicalData", cryptoService.getHistoricalData("DIGITAL_CURRENCY_DAILY", symbol));
+            model.addAttribute("historicalData", cryptoService.getHistoricalAndPredictedData("DIGITAL_CURRENCY_DAILY", symbol));
             return CRYPTO_STATS_PAGE_PATH;
         } catch (IllegalArgumentException e) {
             model.addAttribute("message", e.getMessage());

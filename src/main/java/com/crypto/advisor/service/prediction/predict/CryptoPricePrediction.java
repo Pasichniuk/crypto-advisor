@@ -17,19 +17,18 @@ public class CryptoPricePrediction {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CryptoPricePrediction.class);
 
-    private static final int EXAMPLE_LENGTH = 22; // time series length, assume 22 working days per month
+    private static final int TS_LENGTH = 22; // time series length, 22 days/mo
+    private static final int TRAINING_EPOCHS = 30;
+    private static final int MINI_BATCH_SIZE = 64;
+    private static final double SPLIT_RATIO = 0.9;
 
     private CryptoPricePrediction() {}
 
     public static double[] predict(List<CryptoData> cryptoData) throws IOException {
         var modelFile = new File("src/main/resources/crypto-price-model.zip");
 
-        double splitRatio = 0.9; // 90% for training, 10% for testing
-        int trainingEpochs = 30;
-        int miniBatchSize = 64;
-
         LOGGER.info("Create data set iterator...");
-        var iterator = new CryptoDataSetIterator(cryptoData, miniBatchSize, EXAMPLE_LENGTH, splitRatio);
+        var iterator = new CryptoDataSetIterator(cryptoData, MINI_BATCH_SIZE, TS_LENGTH, SPLIT_RATIO);
 
         LOGGER.info("Load test dataset...");
         var testDataSet = iterator.getTestDataSet();
@@ -42,7 +41,7 @@ public class CryptoPricePrediction {
             net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
 
             LOGGER.info("Training...");
-            for (int i = 0; i < trainingEpochs; i++) {
+            for (int i = 0; i < TRAINING_EPOCHS; i++) {
                 while (iterator.hasNext()) net.fit(iterator.next());
                 iterator.reset();
                 net.rnnClearPreviousState();
@@ -68,7 +67,7 @@ public class CryptoPricePrediction {
         //double[] actuals = new double[testData.size()];
 
         for (int i = 0; i < testData.size(); i++) {
-            predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(EXAMPLE_LENGTH - 1) * (max - min) + min;
+            predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(TS_LENGTH - 1) * (max - min) + min;
             //actuals[i] = testData.get(i).getValue().getDouble(0);
         }
 

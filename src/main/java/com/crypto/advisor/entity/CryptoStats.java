@@ -30,6 +30,22 @@ public class CryptoStats {
     private Double percentChangeTwoMonths;
     private Double percentChangeThreeMonths;
 
+    public CryptoStats(CryptoStats statsToClone) {
+        this.id = statsToClone.getId();
+        this.rank = statsToClone.getRank();
+        this.name = statsToClone.getName();
+        this.symbol = statsToClone.getSymbol();
+        this.lastUpdated = statsToClone.getLastUpdated();
+        this.price = statsToClone.getPrice();
+        this.marketCap = statsToClone.getMarketCap();
+        this.percentChangeHour = statsToClone.getPercentChangeHour();
+        this.percentChangeDay = statsToClone.getPercentChangeDay();
+        this.percentChangeWeek = statsToClone.getPercentChangeWeek();
+        this.percentChangeMonth = statsToClone.getPercentChangeMonth();
+        this.percentChangeTwoMonths = statsToClone.getPercentChangeTwoMonths();
+        this.percentChangeThreeMonths = statsToClone.getPercentChangeThreeMonths();
+    }
+
     @SuppressWarnings("unchecked")
     @JsonProperty("quote")
     private void unpackFieldsFromQuote(Map<String, Object> quote) {
