@@ -74,17 +74,17 @@
 <table class="styled-table">
     <thead>
     <tr>
-        <th> Rank </th>
-        <th> Name </th>
-        <th> Symbol </th>
-        <th> Price </th>
-        <th> 1h % </th>
-        <th> 24h % </th>
-        <th> 7d % </th>
-        <th> 30d % </th>
-        <th> 60d % </th>
-        <th> Market Cap </th>
-        <th> Actions </th>
+        <th style="text-align:center"> Rank </th>
+        <th style="text-align:center"> Name </th>
+        <th style="text-align:center"> Symbol </th>
+        <th style="text-align:center"> Price </th>
+        <th style="text-align:center"> 1h % </th>
+        <th style="text-align:center"> 24h % </th>
+        <th style="text-align:center"> 7d % </th>
+        <th style="text-align:center"> 30d % </th>
+        <th style="text-align:center"> 60d % </th>
+        <th style="text-align:center"> Market Cap </th>
+        <th style="text-align:center"> Actions </th>
     </tr>
     </thead>
     <tbody>
@@ -102,7 +102,7 @@
         <td><span th:text="${cryptoStats.percentChangeMonth}"> 30d % </span></td>
         <td><span th:text="${cryptoStats.percentChangeTwoMonths}"> 60d % </span></td>
         <td><span th:text="${cryptoStats.marketCap}"> Market Cap </span></td>
-        <td><a th:href="@{/stats/{symbol}(symbol=${cryptoStats.symbol})}"}> View </a></td>
+        <td><a th:href="@{/stats/{symbol}(symbol=${cryptoStats.symbol})}"> View </a></td>
     </tr>
     </tbody>
 </table>
