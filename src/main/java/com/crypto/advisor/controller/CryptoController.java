@@ -1,6 +1,7 @@
 package com.crypto.advisor.controller;
 
-import com.crypto.advisor.entity.CryptoStats;
+import com.crypto.advisor.model.Constants;
+import com.crypto.advisor.model.CryptoStats;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,12 +20,6 @@ import java.util.stream.Collectors;
 @Controller
 public class CryptoController {
 
-    private static final String ALL_CRYPTO_STATS_PAGE_PATH = "all-crypto-stats";
-    private static final String CRYPTO_STATS_PAGE_PATH = "crypto-stats";
-    private static final String CONTACTS_PAGE_PATH = "contacts";
-    private static final String ABOUT_PAGE_PATH = "about";
-    private static final String ERROR_PAGE_PATH = "error";
-
     private final CryptoService cryptoService;
 
     @Autowired
@@ -41,7 +36,7 @@ public class CryptoController {
         addDeviatingCryptos(model, cryptoStats);
         addStableCryptos(model, cryptoStats);
 
-        return ALL_CRYPTO_STATS_PAGE_PATH;
+        return Constants.ALL_CRYPTO_STATS_PATH;
     }
 
     private void addTrendingCryptos(Model model, Set<CryptoStats> cryptoStats) {
@@ -88,23 +83,23 @@ public class CryptoController {
 
     @GetMapping("/stats/{symbol}")
     public String getCryptoStatistics(@PathVariable @NonNull String symbol, Model model) {
-        try {
-            model.addAttribute("cryptoStats", cryptoService.getCryptoStatisticsBySymbol(symbol));
-            model.addAttribute("historicalData", cryptoService.getHistoricalAndPredictedData("DIGITAL_CURRENCY_DAILY", symbol));
-            return CRYPTO_STATS_PAGE_PATH;
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("message", e.getMessage());
-            return ERROR_PAGE_PATH;
-        }
+        model.addAttribute("cryptoStats", cryptoService.getCryptoStatisticsBySymbol(symbol));
+        model.addAttribute("historicalData", cryptoService.getHistoricalAndPredictedData("DIGITAL_CURRENCY_DAILY", symbol));
+        return Constants.CRYPTO_STATS_PATH;
+    }
+
+    @GetMapping( {"/", Constants.HOME_PATH})
+    public String home() {
+        return Constants.HOME_PATH;
     }
 
     @GetMapping("/contacts")
     public String contacts() {
-        return CONTACTS_PAGE_PATH;
+        return Constants.CONTACTS_PATH;
     }
 
     @GetMapping("/about")
     public String about() {
-        return ABOUT_PAGE_PATH;
+        return Constants.ABOUT_PATH;
     }
 }

@@ -1,7 +1,7 @@
 package com.crypto.advisor.service.prediction.predict;
 
 import com.crypto.advisor.service.prediction.model.RecurrentNets;
-import com.crypto.advisor.entity.CryptoData;
+import com.crypto.advisor.model.CryptoData;
 import org.deeplearning4j.nn.multilayer.MultiLayerNetwork;
 import org.deeplearning4j.util.ModelSerializer;
 import org.nd4j.linalg.api.ndarray.INDArray;

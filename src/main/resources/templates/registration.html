@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Registration</title>
+    <link th:href="@{/styles/style.css}" rel="stylesheet"/>
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}"><h2><b>Crypto Advisor</b></h2></a></li>
+            <li><a th:href="@{/stats}">HOME</a></li>
+            <li><a th:href="@{/about}">ABOUT</a></li>
+            <li><a th:href="@{/contacts}">CONTACTS</a></li>
+        </ul>
+    </nav>
+</header>
+<div class='container'>
+    <div class='window'>
+        <div class='overlay'></div>
+        <form class='content' autocomplete="off" action="#" th:action="@{/registration}" th:object="${user}" method="post">
+            <div class='content'>
+                <div class='welcome'>Hello There!</div>
+                <br>
+                <div class='subtitle'>Please create an account before starting to use our service</div>
+                <div class='input-fields'>
+                    <input type='text' placeholder='Username' class='input-line full-width' autocomplete="off"
+                               th:field="*{username}" required autofocus maxlength="15" minlength="5">
+                    <label th:if="${#fields.hasErrors('username')}" th:errors="*{username}"></label>
+                    <input type='password' placeholder='Password' class='input-line full-width' autocomplete="off"
+                               th:field="*{password}" required minlength="5">
+                    <label th:if="${#fields.hasErrors('password')}" th:errors="*{password}"></label>
+                    <input type='password' placeholder='Password Confirmation' class='input-line full-width'
+                               autocomplete="off" th:field="*{passwordConfirmation}" required minlength="5">
+                    <label th:if="${#fields.hasErrors('passwordConfirmation')}" th:errors="*{passwordConfirmation}"></label>
+                </div>
+                <div>
+                    <br>
+                    <button class='ghost-round full-width'>Create Account</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

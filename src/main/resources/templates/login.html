@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Log in</title>
+    <link th:href="@{/styles/style.css}" rel="stylesheet"/>
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}"><h2><b>Crypto Advisor</b></h2></a></li>
+            <li><a th:href="@{/stats}">HOME</a></li>
+            <li><a th:href="@{/about}">ABOUT</a></li>
+            <li><a th:href="@{/contacts}">CONTACTS</a></li>
+        </ul>
+    </nav>
+</header>
+<div class='container'>
+    <div class='window'>
+        <div class='overlay'></div>
+        <form class='content' autocomplete="off" action="#" th:action="@{/login}" method="post">
+            <div class='content'>
+                <div class='welcome'>Nice to see you!</div>
+                <br>
+                <div class="subtitle">Please provide your account credentials to log in</div>
+                <br>
+                <div class="subtitle-error" th:if="${param.error}">
+                    Failed to log in. Please re-check your credentials
+                </div>
+                <div class='input-fields'>
+                    <input type='text' placeholder='Username' class='input-line full-width' name="username"
+                           id="username" autocomplete="off" required autofocus>
+                    <input type='password' placeholder='Password' class='input-line full-width' name="password"
+                           id="password" autocomplete="off" required>
+                </div>
+                <div>
+                    <br>
+                    <button class='ghost-round full-width'>Log in</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+</body>
+</html>

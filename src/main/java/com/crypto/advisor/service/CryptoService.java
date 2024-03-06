@@ -1,9 +1,9 @@
 package com.crypto.advisor.service;
 
-import com.crypto.advisor.entity.CryptoStats;
+import com.crypto.advisor.model.CryptoStats;
 import com.crypto.advisor.exception.CryptoNotFoundException;
 import com.crypto.advisor.service.prediction.predict.CryptoPricePrediction;
-import com.crypto.advisor.entity.CryptoData;
+import com.crypto.advisor.model.CryptoData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
 import org.springframework.beans.factory.annotation.Autowired;

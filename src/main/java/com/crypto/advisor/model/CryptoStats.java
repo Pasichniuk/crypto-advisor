@@ -1,4 +1,4 @@
-package com.crypto.advisor.entity;
+package com.crypto.advisor.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
