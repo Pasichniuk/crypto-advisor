@@ -31,6 +31,13 @@ body {
 	transform: translate(-50%, -50%);
 }
 
+.styled-table-3 {
+	position: absolute;
+	top: 40%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+}
+
 .widget-table-1 {
 	width: 355px;
 	position: absolute;
@@ -86,6 +93,11 @@ td {
 }
 
 td a {
+	color: ghostwhite;
+	text-decoration: none;
+}
+
+td form {
 	color: ghostwhite;
 	text-decoration: none;
 }
@@ -401,6 +413,14 @@ button:focus {
 	position: absolute;
 	width: 360px;
 	z-index: 1;
+}
+
+.ref-link {
+	color: ghostwhite;
+}
+
+.logout-li {
+	margin-left: 525px;
 }
 
 @media (max-width: 500px) {

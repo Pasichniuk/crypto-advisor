@@ -28,6 +28,9 @@
                 <div class="subtitle-error" th:if="${param.error}">
                     Failed to log in. Please re-check your credentials
                 </div>
+                <div class="subtitle-error" th:if="${param.logout}">
+                    You've been logged out successfully
+                </div>
                 <div class='input-fields'>
                     <input type='text' placeholder='Username' class='input-line full-width' name="username"
                            id="username" autocomplete="off" required autofocus>
@@ -37,6 +40,10 @@
                 <div>
                     <br>
                     <button class='ghost-round full-width'>Log in</button>
+                </div>
+                <br>
+                <div class="subtitle">
+                    Don't have an account? <a class='ref-link' th:href="@{/registration}">Sign up</a>
                 </div>
             </div>
         </form>

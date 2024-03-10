@@ -33,4 +33,12 @@ public class UserDaoImpl implements UserDao {
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
+
+    @Transactional
+    @Override
+    public void enable(String username, boolean value) {
+        var user = userRepository.findByUsername(username).orElseThrow();
+        user.setIsEnabled(value);
+        userRepository.saveAndFlush(user);
+    }
 }

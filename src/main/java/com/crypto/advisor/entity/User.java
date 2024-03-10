@@ -39,7 +39,6 @@ public class User implements Serializable {
 
     @Transient
     @JsonIgnore
-    @NotBlank(message = "Password confirmation is required")
     private String passwordConfirmation;
 
     @Column(name = "is_enabled", nullable = false)

@@ -11,4 +11,6 @@ public interface UserDao {
     Iterable<User> findAll();
 
     Optional<User> findByUsername(String username);
+
+    void enable(String username, boolean value);
 }
