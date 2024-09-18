@@ -34,7 +34,7 @@ public class AlphaVantageClient {
         List<NameValuePair> parameters = new ArrayList<>();
         parameters.add(new BasicNameValuePair("function",function));
         parameters.add(new BasicNameValuePair("symbol",symbol));
-        parameters.add(new BasicNameValuePair("market","CNY"));
+        parameters.add(new BasicNameValuePair("market","EUR"));
         parameters.add(new BasicNameValuePair("apikey", apiKey));
 
         try {

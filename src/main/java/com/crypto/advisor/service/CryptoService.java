@@ -77,7 +77,7 @@ public class CryptoService {
             Object value = data.get(currentKey);
 
             if (value instanceof JsonObject) {
-                var price = ((JsonObject) value).get("2b. high (USD)").toString().replace("\"", "");
+                var price = ((JsonObject) value).get("2. high").toString().replace("\"", "");
                 var decimalFormat = new DecimalFormat("0.#####");
                 price = decimalFormat.format(Double.valueOf(price));
                 histData.put(currentKey, price);
@@ -88,7 +88,7 @@ public class CryptoService {
         Map<String, BigDecimal> preparedData = new LinkedHashMap<>(predictedPrices);
         histData.forEach((key, value) -> preparedData.put(key, new BigDecimal(value)));
 
-        return mapToJsonString(preparedData);
+        return mapToJsonString(preparedData, histData.size());
     }
 
     private Map<String, BigDecimal> getPredictedPrices(Map<String, String> histData, String symbol) {
@@ -96,11 +96,11 @@ public class CryptoService {
         TreeMap<String, String> sortedHistData = new TreeMap<>(histData);
         sortedHistData.forEach((k, v) -> cryptoData.add(new CryptoData(k, symbol, Double.parseDouble(v))));
 
-        double[] predictedPrices = new double[0];
+        double[] predictedPrices;
         try {
             predictedPrices = CryptoPricePrediction.predict(cryptoData);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Failed to predict prices", e);
         }
 
         var currentDate = LocalDate.now();
@@ -117,9 +117,9 @@ public class CryptoService {
                 );
     }
 
-    private String mapToJsonString(Map<String, BigDecimal> data) {
+    private String mapToJsonString(Map<String, BigDecimal> data, int histDataSize) {
         var sb = new StringBuilder();
-        var counter = new AtomicInteger(data.size() - 1000);
+        var counter = new AtomicInteger(data.size() - histDataSize);
         var certainty = new AtomicBoolean(false);
         var rowFormat = "{\"c\":[{\"v\":\"%s\",\"f\":null},{\"v\":%s,\"f\":null},{\"v\":%s}]},";
 
