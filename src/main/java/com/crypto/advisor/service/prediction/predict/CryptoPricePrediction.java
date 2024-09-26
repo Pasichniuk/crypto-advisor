@@ -35,10 +35,10 @@ public class CryptoPricePrediction {
 
         MultiLayerNetwork net;
 
-        boolean trainModel = false; // true -> train & use the model; false -> simply use the model
+        boolean trainModel = true; // true -> train & use the model; false -> simply use the model
         if (trainModel) {
             LOGGER.info("Build lstm networks...");
-            net = RecurrentNets.buildLstmNetworks(iterator.inputColumns(), iterator.totalOutcomes());
+            net = RecurrentNets.buildHybridNetwork(iterator.inputColumns(), iterator.totalOutcomes());
 
             LOGGER.info("Training...");
             for (int i = 0; i < TRAINING_EPOCHS; i++) {
@@ -64,19 +64,18 @@ public class CryptoPricePrediction {
     // uncomment code to see predicted/actual prices
     private static double[] predictPriceOneAhead(MultiLayerNetwork net, List<Pair<INDArray, INDArray>> testData, double max, double min) {
         double[] predicts = new double[testData.size()];
-        //double[] actuals = new double[testData.size()];
+        double[] actuals = new double[testData.size()];
 
         for (int i = 0; i < testData.size(); i++) {
-            predicts[i] = net.rnnTimeStep(testData.get(i).getKey()).getDouble(TS_LENGTH - 1) * (max - min) + min;
-            //actuals[i] = testData.get(i).getValue().getDouble(0);
+            INDArray input = testData.get(i).getKey().reshape(testData.get(i).getKey().shape()[0], 1, testData.get(i).getKey().shape()[1]);
+            predicts[i] = net.rnnTimeStep(input).getDouble(TS_LENGTH - 1) * (max - min) + min;
+            actuals[i] = testData.get(i).getValue().getDouble(0);
         }
 
-        /*
         LOGGER.info("Predict, Actual");
         for (int i = 0; i < predicts.length; i++) {
             LOGGER.info("{}, {}", predicts[i], actuals[i]);
         }
-        */
 
         LOGGER.info("Done!");
 

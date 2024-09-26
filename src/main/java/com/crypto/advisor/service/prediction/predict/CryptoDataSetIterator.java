@@ -102,7 +102,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
 
         int actualMiniBatchSize = Math.min(num, exampleStartOffsets.size());
         var input = Nd4j.create(new int[]{actualMiniBatchSize, VECTOR_SIZE, exampleLength}, 'f');
-        var label = Nd4j.create(new int[]{actualMiniBatchSize, PREDICT_LENGTH, exampleLength}, 'f');
+        var label = Nd4j.create(new int[]{actualMiniBatchSize, PREDICT_LENGTH}, 'f');
 
         for (int index = 0; index < actualMiniBatchSize; index++) {
             int startIdx = exampleStartOffsets.removeFirst();
@@ -117,7 +117,10 @@ public class CryptoDataSetIterator implements DataSetIterator {
                 input.putScalar(new int[]{index, 0, c}, (curData.getPrice() - min) / (max - min));
                 nextData = trainDataSet.get(i + 1);
 
-                label.putScalar(new int[]{index, 0, c}, (nextData.getPrice() - min) / (max - min));
+                if (i == endIdx - 1) {
+                    label.putScalar(new int[]{index, 0}, (nextData.getPrice() - min) / (max - min));
+                }
+
                 curData = nextData;
             }
 
