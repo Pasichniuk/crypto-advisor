@@ -2,7 +2,7 @@ package com.crypto.advisor.controller;
 
 import com.crypto.advisor.model.Constants;
 import com.crypto.advisor.model.CryptoStats;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.lang.NonNull;
@@ -18,14 +18,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
+@RequiredArgsConstructor
 public class CryptoController {
 
     private final CryptoService cryptoService;
-
-    @Autowired
-    public CryptoController(CryptoService cryptoService) {
-        this.cryptoService = cryptoService;
-    }
 
     @GetMapping("/stats")
     public String getCryptoStatistics(Model model) {

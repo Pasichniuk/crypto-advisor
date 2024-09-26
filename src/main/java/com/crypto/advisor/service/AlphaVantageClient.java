@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -31,22 +30,22 @@ public class AlphaVantageClient {
     }
 
     public String getHistoricalData(String function, String symbol) {
-        List<NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair("function",function));
-        parameters.add(new BasicNameValuePair("symbol",symbol));
-        parameters.add(new BasicNameValuePair("market","EUR"));
-        parameters.add(new BasicNameValuePair("apikey", apiKey));
+        final List<NameValuePair> parameters = List.of(
+                new BasicNameValuePair("function", function),
+                new BasicNameValuePair("symbol", symbol),
+                new BasicNameValuePair("market", "EUR"),
+                new BasicNameValuePair("apikey", apiKey)
+        );
 
         try {
-            return makeAPICall(parameters);
-        } catch (IOException | URISyntaxException e) {
+            return makeApiCall(parameters);
+        } catch (Exception e) {
             LOGGER.error("Caught exception during API call: " + e.getMessage());
+            return "";
         }
-
-        return "";
     }
 
-    private String makeAPICall(List<NameValuePair> parameters) throws URISyntaxException, IOException {
+    private String makeApiCall(final List<NameValuePair> parameters) throws URISyntaxException, IOException {
         String responseContent;
 
         var query = new URIBuilder(url);

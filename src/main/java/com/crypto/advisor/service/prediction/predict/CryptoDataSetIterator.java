@@ -1,6 +1,7 @@
 package com.crypto.advisor.service.prediction.predict;
 
 import com.crypto.advisor.model.CryptoData;
+import lombok.Getter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
@@ -20,10 +21,13 @@ public class CryptoDataSetIterator implements DataSetIterator {
     private final int miniBatchSize;
     private final int exampleLength;
 
+    @Getter
     private final double min;
+    @Getter
     private final double max;
 
     private final LinkedList<Integer> exampleStartOffsets = new LinkedList<>();
+    @Getter
     private final List<Pair<INDArray, INDArray>> testDataSet;
     private final transient List<CryptoData> trainDataSet;
 
@@ -80,18 +84,6 @@ public class CryptoDataSetIterator implements DataSetIterator {
         for (int i = 0; i < trainDataSet.size() - window; i++) {
             exampleStartOffsets.add(i);
         }
-    }
-
-    public double getMin() {
-        return min;
-    }
-
-    public double getMax() {
-        return max;
-    }
-
-    public List<Pair<INDArray, INDArray>> getTestDataSet() {
-        return testDataSet;
     }
 
     @Override

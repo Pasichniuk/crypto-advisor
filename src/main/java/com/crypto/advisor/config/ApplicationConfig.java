@@ -5,7 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-import com.crypto.advisor.filter.RateLimitInterceptor;
+import com.crypto.advisor.interceptor.RateLimitInterceptor;
 
 @Configuration
 public class ApplicationConfig implements WebMvcConfigurer {

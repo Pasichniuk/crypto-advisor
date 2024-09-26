@@ -6,7 +6,7 @@ import com.crypto.advisor.service.prediction.predict.CryptoPricePrediction;
 import com.crypto.advisor.model.CryptoData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,18 +22,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 public class CryptoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CryptoService.class);
 
     private final CmcApiClient cmcApiClient;
     private final AlphaVantageClient avApiClient;
-
-    @Autowired
-    public CryptoService(CmcApiClient cmcApiClient, AlphaVantageClient avApiClient) {
-        this.cmcApiClient = cmcApiClient;
-        this.avApiClient = avApiClient;
-    }
 
     public Set<CryptoStats> getCryptoStatistics() {
         var apiResponse = cmcApiClient.getLatestListings();
@@ -52,14 +47,14 @@ public class CryptoService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public CryptoStats getCryptoStatisticsBySymbol(String symbol) {
+    public CryptoStats getCryptoStatisticsBySymbol(final String symbol) {
         return getCryptoStatistics().stream()
                 .filter(c -> c.getSymbol().equals(symbol))
                 .findFirst()
                 .orElseThrow(() -> new CryptoNotFoundException(symbol));
     }
 
-    public String getHistoricalAndPredictedData(String function, String symbol) {
+    public String getHistoricalAndPredictedData(final String function, final String symbol) {
         var apiResponse = avApiClient.getHistoricalData(function, symbol);
         var object = (JsonObject) JsonParser.parseString(apiResponse);
 
@@ -68,7 +63,7 @@ public class CryptoService {
             data = object.get("Time Series (Digital Currency Daily)").getAsJsonObject();
         } catch (Exception e) {
             LOGGER.error("Failed to get json object. Reason: " + e.getMessage());
-            throw new IllegalArgumentException("Fiat cryptocurrencies are not supported yet!");
+            throw new IllegalArgumentException("Unexpected error occurred. Please wait and try again");
         }
 
         Map<String, String> histData = new LinkedHashMap<>();
