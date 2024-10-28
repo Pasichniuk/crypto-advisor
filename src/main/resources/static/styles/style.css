@@ -10,7 +10,7 @@ body {
 	height: 100%;
 	background-size: cover;
 	margin: 0;
-	background: linear-gradient(90deg, #49a09d, #5f2c82);
+	background: linear-gradient(90deg, #007FFF, #191970);
 	font-family: sans-serif;
 	font-weight: 100;
 	margin-top: 80px;
@@ -103,7 +103,7 @@ td form {
 }
 
 td a:hover {
-	color: #49a09d;
+	color: #007FFF;
 	text-decoration: none;
 }
 
@@ -113,7 +113,7 @@ th {
 
 thead {
 	th {
-		background-color: #55608f;
+		background-color: #0F52BA;
 	}
 }
 
@@ -141,7 +141,7 @@ tbody {
 }
 
 header {
-	background-color: #55608f;
+	background-color: #0F52BA;
 	position: fixed;
 	top: 0;
 	left: 0;
@@ -186,7 +186,7 @@ nav ul li a:before {
 	transition: all .5s;
 }
 nav ul li a:hover {
-	color: #8497E7;
+	color: #6784ff;
 }
 
 nav ul li a {
@@ -208,7 +208,7 @@ nav ul li a:after {
 	height: 1px;
 	content: '.';
 	color: transparent;
-	background: #8497E7;
+	background: #6784ff;
 	visibility: none;
 	opacity: 0;
 	z-index: -1;
@@ -334,7 +334,7 @@ button:focus {
 	-webkit-justify-content: center;
 	-ms-flex-pack: center;
 	justify-content: center;
-	background: linear-gradient(90deg, #49a09d, #5f2c82);
+	background: linear-gradient(90deg, #007FFF, #191970);
 	height: 100%;
 }
 
@@ -401,12 +401,12 @@ button:focus {
 	height: 450px;
 	width: 360px;
 	background: #fff;
-	background: url('https://pexels.imgix.net/photos/27718/pexels-photo-27718.jpg?fit=crop&w=1280&h=823') top left no-repeat;
+	background: linear-gradient(90deg, #007FFF, #191970);
 }
 
 .overlay {
-	background: -webkit-linear-gradient(#8CA6DB, #B993D6);
-	background: linear-gradient(#8CA6DB, #B993D6);
+	background: -webkit-linear-gradient(#007FFF, #191970);
+	background: linear-gradient(#007FFF, #191970);
 	opacity: 0.85;
 	filter: alpha(opacity=85);
 	height: 450px;
