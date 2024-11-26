@@ -423,6 +423,10 @@ button:focus {
 	margin-left: 525px;
 }
 
+.logout-li2 {
+	margin-left: 513px;
+}
+
 @media (max-width: 500px) {
 	.window {
 		width: 100%;
