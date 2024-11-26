@@ -38,7 +38,7 @@ public class CryptoController {
     private void addTrendingCryptos(Model model, Set<CryptoStats> cryptoStats) {
         var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
         var trendingCryptos = List.copyOf(cryptoStatsCopy).stream()
-                .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek).reversed())
+                .sorted(Comparator.comparingDouble(stats -> ((CryptoStats) stats).getPercentChangeWeek().doubleValue()).reversed())
                 .limit(3)
                 .collect(Collectors.toList());
 
@@ -50,7 +50,7 @@ public class CryptoController {
     private void addDeviatingCryptos(Model model, Set<CryptoStats> cryptoStats) {
         var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
         var deviatingCryptos = List.copyOf(cryptoStatsCopy).stream()
-                .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek))
+                .sorted(Comparator.comparingDouble(stats -> stats.getPercentChangeWeek().doubleValue()))
                 .limit(3)
                 .collect(Collectors.toList());
 
@@ -62,7 +62,7 @@ public class CryptoController {
     private void addStableCryptos(Model model, Set<CryptoStats> cryptoStats) {
         var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
         var stableCryptos = List.copyOf(cryptoStatsCopy).stream()
-                .sorted(Comparator.comparingDouble(s -> Math.abs(s.getPercentChangeThreeMonths())))
+                .sorted(Comparator.comparingDouble(s -> Math.abs(s.getPercentChangeThreeMonths().doubleValue())))
                 .limit(3)
                 .collect(Collectors.toList());
 

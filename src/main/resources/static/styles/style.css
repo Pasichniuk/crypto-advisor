@@ -19,7 +19,7 @@ body {
 
 .styled-table {
 	position: absolute;
-	top: 67%;
+	top: 65%;
 	left: 50%;
 	transform: translate(-50%, -50%);
 }
@@ -421,10 +421,6 @@ button:focus {
 
 .logout-li {
 	margin-left: 525px;
-}
-
-.logout-li2 {
-	margin-left: 513px;
 }
 
 @media (max-width: 500px) {
