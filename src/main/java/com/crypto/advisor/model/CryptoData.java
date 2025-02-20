@@ -1,4 +1,4 @@
-package com.crypto.advisor.entity;
+package com.crypto.advisor.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

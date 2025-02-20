@@ -1,10 +1,12 @@
-package com.crypto.advisor.entity;
+package com.crypto.advisor.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Map;
 
 @Data
@@ -21,14 +23,14 @@ public class CryptoStats {
     private String symbol;
     private String lastUpdated;
 
-    private Double price;
-    private Double marketCap;
-    private Double percentChangeHour;
-    private Double percentChangeDay;
-    private Double percentChangeWeek;
-    private Double percentChangeMonth;
-    private Double percentChangeTwoMonths;
-    private Double percentChangeThreeMonths;
+    private BigDecimal price;
+    private BigDecimal marketCap;
+    private BigDecimal percentChangeHour;
+    private BigDecimal percentChangeDay;
+    private BigDecimal percentChangeWeek;
+    private BigDecimal percentChangeMonth;
+    private BigDecimal percentChangeTwoMonths;
+    private BigDecimal percentChangeThreeMonths;
 
     public CryptoStats(CryptoStats statsToClone) {
         this.id = statsToClone.getId();
@@ -53,13 +55,17 @@ public class CryptoStats {
 
         lastUpdated = (String) node.get("last_updated");
 
-        price = (Double) node.get("price");
-        marketCap = (Double) node.get("market_cap");
-        percentChangeHour = (Double) node.get("percent_change_1h");
-        percentChangeDay = (Double) node.get("percent_change_24h");
-        percentChangeWeek = (Double) node.get("percent_change_7d");
-        percentChangeMonth = (Double) node.get("percent_change_30d");
-        percentChangeTwoMonths = (Double) node.get("percent_change_60d");
-        percentChangeThreeMonths = (Double) node.get("percent_change_90d");
+        price = getRoundedValue((Double) node.get("price"));
+        marketCap = getRoundedValue((Double) node.get("market_cap"));
+        percentChangeHour = getRoundedValue((Double) node.get("percent_change_1h"));
+        percentChangeDay = getRoundedValue((Double) node.get("percent_change_24h"));
+        percentChangeWeek = getRoundedValue((Double) node.get("percent_change_7d"));
+        percentChangeMonth = getRoundedValue((Double) node.get("percent_change_30d"));
+        percentChangeTwoMonths = getRoundedValue((Double) node.get("percent_change_60d"));
+        percentChangeThreeMonths = getRoundedValue((Double) node.get("percent_change_90d"));
+    }
+
+    private BigDecimal getRoundedValue(Double value) {
+        return BigDecimal.valueOf(value).setScale(5, RoundingMode.CEILING);
     }
 }

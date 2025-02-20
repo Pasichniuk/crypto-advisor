@@ -1,4 +1,4 @@
-package com.crypto.advisor.filter;
+package com.crypto.advisor.interceptor;
 
 import java.time.Duration;
 import java.io.IOException;
@@ -17,21 +17,21 @@ import lombok.NonNull;
 @Component
 public class RateLimitInterceptor implements HandlerInterceptor {
 
+    private static final long CAPACITY = 50;
+
     private final Bucket tokenBucket;
 
     public RateLimitInterceptor() {
-        var limit = Bandwidth.classic(50, Refill.greedy(50, Duration.ofMinutes(5)));
+        var limit = Bandwidth.classic(CAPACITY, Refill.greedy(CAPACITY, Duration.ofMinutes(5)));
         this.tokenBucket = Bucket.builder()
                 .addLimit(limit)
                 .build();
     }
 
     @Override
-    public boolean preHandle(
-        @NonNull HttpServletRequest request,
-        @NonNull HttpServletResponse response,
-        @NonNull Object handler
-    ) throws IOException {
+    public boolean preHandle(@NonNull HttpServletRequest request,
+                             @NonNull HttpServletResponse response,
+                             @NonNull Object handler) throws IOException {
 
         var probe = tokenBucket.tryConsumeAndReturnRemaining(1);
 

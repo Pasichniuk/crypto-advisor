@@ -1,6 +1,7 @@
 package com.crypto.advisor.service.prediction.predict;
 
-import com.crypto.advisor.entity.CryptoData;
+import com.crypto.advisor.model.CryptoData;
+import lombok.Getter;
 import org.nd4j.linalg.api.ndarray.INDArray;
 import org.nd4j.linalg.dataset.DataSet;
 import org.nd4j.linalg.dataset.api.DataSetPreProcessor;
@@ -20,10 +21,13 @@ public class CryptoDataSetIterator implements DataSetIterator {
     private final int miniBatchSize;
     private final int exampleLength;
 
+    @Getter
     private final double min;
+    @Getter
     private final double max;
 
     private final LinkedList<Integer> exampleStartOffsets = new LinkedList<>();
+    @Getter
     private final List<Pair<INDArray, INDArray>> testDataSet;
     private final transient List<CryptoData> trainDataSet;
 
@@ -82,18 +86,6 @@ public class CryptoDataSetIterator implements DataSetIterator {
         }
     }
 
-    public double getMin() {
-        return min;
-    }
-
-    public double getMax() {
-        return max;
-    }
-
-    public List<Pair<INDArray, INDArray>> getTestDataSet() {
-        return testDataSet;
-    }
-
     @Override
     public DataSet next(int num) {
         if (exampleStartOffsets.isEmpty()) {
@@ -102,7 +94,7 @@ public class CryptoDataSetIterator implements DataSetIterator {
 
         int actualMiniBatchSize = Math.min(num, exampleStartOffsets.size());
         var input = Nd4j.create(new int[]{actualMiniBatchSize, VECTOR_SIZE, exampleLength}, 'f');
-        var label = Nd4j.create(new int[]{actualMiniBatchSize, PREDICT_LENGTH, exampleLength}, 'f');
+        var label = Nd4j.create(new int[]{actualMiniBatchSize, PREDICT_LENGTH}, 'f');
 
         for (int index = 0; index < actualMiniBatchSize; index++) {
             int startIdx = exampleStartOffsets.removeFirst();
@@ -117,7 +109,10 @@ public class CryptoDataSetIterator implements DataSetIterator {
                 input.putScalar(new int[]{index, 0, c}, (curData.getPrice() - min) / (max - min));
                 nextData = trainDataSet.get(i + 1);
 
-                label.putScalar(new int[]{index, 0, c}, (nextData.getPrice() - min) / (max - min));
+                if (i == endIdx - 1) {
+                    label.putScalar(new int[]{index, 0}, (nextData.getPrice() - min) / (max - min));
+                }
+
                 curData = nextData;
             }
 

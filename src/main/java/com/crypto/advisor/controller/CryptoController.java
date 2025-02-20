@@ -1,7 +1,8 @@
 package com.crypto.advisor.controller;
 
-import com.crypto.advisor.entity.CryptoStats;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.crypto.advisor.model.Constants;
+import com.crypto.advisor.model.CryptoStats;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.lang.NonNull;
@@ -17,20 +18,10 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Controller
+@RequiredArgsConstructor
 public class CryptoController {
 
-    private static final String ALL_CRYPTO_STATS_PAGE_PATH = "all-crypto-stats";
-    private static final String CRYPTO_STATS_PAGE_PATH = "crypto-stats";
-    private static final String CONTACTS_PAGE_PATH = "contacts";
-    private static final String ABOUT_PAGE_PATH = "about";
-    private static final String ERROR_PAGE_PATH = "error";
-
     private final CryptoService cryptoService;
-
-    @Autowired
-    public CryptoController(CryptoService cryptoService) {
-        this.cryptoService = cryptoService;
-    }
 
     @GetMapping("/stats")
     public String getCryptoStatistics(Model model) {
@@ -41,13 +32,13 @@ public class CryptoController {
         addDeviatingCryptos(model, cryptoStats);
         addStableCryptos(model, cryptoStats);
 
-        return ALL_CRYPTO_STATS_PAGE_PATH;
+        return Constants.ALL_CRYPTO_STATS_PATH;
     }
 
     private void addTrendingCryptos(Model model, Set<CryptoStats> cryptoStats) {
         var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
         var trendingCryptos = List.copyOf(cryptoStatsCopy).stream()
-                .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek).reversed())
+                .sorted(Comparator.comparingDouble(stats -> ((CryptoStats) stats).getPercentChangeWeek().doubleValue()).reversed())
                 .limit(3)
                 .collect(Collectors.toList());
 
@@ -59,7 +50,7 @@ public class CryptoController {
     private void addDeviatingCryptos(Model model, Set<CryptoStats> cryptoStats) {
         var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
         var deviatingCryptos = List.copyOf(cryptoStatsCopy).stream()
-                .sorted(Comparator.comparingDouble(CryptoStats::getPercentChangeWeek))
+                .sorted(Comparator.comparingDouble(stats -> stats.getPercentChangeWeek().doubleValue()))
                 .limit(3)
                 .collect(Collectors.toList());
 
@@ -71,7 +62,7 @@ public class CryptoController {
     private void addStableCryptos(Model model, Set<CryptoStats> cryptoStats) {
         var cryptoStatsCopy = getCryptoStatsCopy(cryptoStats);
         var stableCryptos = List.copyOf(cryptoStatsCopy).stream()
-                .sorted(Comparator.comparingDouble(s -> Math.abs(s.getPercentChangeThreeMonths())))
+                .sorted(Comparator.comparingDouble(s -> Math.abs(s.getPercentChangeThreeMonths().doubleValue())))
                 .limit(3)
                 .collect(Collectors.toList());
 
@@ -88,23 +79,23 @@ public class CryptoController {
 
     @GetMapping("/stats/{symbol}")
     public String getCryptoStatistics(@PathVariable @NonNull String symbol, Model model) {
-        try {
-            model.addAttribute("cryptoStats", cryptoService.getCryptoStatisticsBySymbol(symbol));
-            model.addAttribute("historicalData", cryptoService.getHistoricalAndPredictedData("DIGITAL_CURRENCY_DAILY", symbol));
-            return CRYPTO_STATS_PAGE_PATH;
-        } catch (IllegalArgumentException e) {
-            model.addAttribute("message", e.getMessage());
-            return ERROR_PAGE_PATH;
-        }
+        model.addAttribute("cryptoStats", cryptoService.getCryptoStatisticsBySymbol(symbol));
+        model.addAttribute("historicalData", cryptoService.getHistoricalAndPredictedData("DIGITAL_CURRENCY_DAILY", symbol));
+        return Constants.CRYPTO_STATS_PATH;
+    }
+
+    @GetMapping( {"/", Constants.HOME_PATH})
+    public String home() {
+        return Constants.HOME_PATH;
     }
 
     @GetMapping("/contacts")
     public String contacts() {
-        return CONTACTS_PAGE_PATH;
+        return Constants.CONTACTS_PATH;
     }
 
     @GetMapping("/about")
     public String about() {
-        return ABOUT_PAGE_PATH;
+        return Constants.ABOUT_PATH;
     }
 }

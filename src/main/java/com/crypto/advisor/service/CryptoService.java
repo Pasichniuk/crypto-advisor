@@ -1,12 +1,12 @@
 package com.crypto.advisor.service;
 
-import com.crypto.advisor.entity.CryptoStats;
+import com.crypto.advisor.model.CryptoStats;
 import com.crypto.advisor.exception.CryptoNotFoundException;
 import com.crypto.advisor.service.prediction.predict.CryptoPricePrediction;
-import com.crypto.advisor.entity.CryptoData;
+import com.crypto.advisor.model.CryptoData;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.*;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,18 +22,13 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 @Service
+@RequiredArgsConstructor
 public class CryptoService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CryptoService.class);
 
     private final CmcApiClient cmcApiClient;
     private final AlphaVantageClient avApiClient;
-
-    @Autowired
-    public CryptoService(CmcApiClient cmcApiClient, AlphaVantageClient avApiClient) {
-        this.cmcApiClient = cmcApiClient;
-        this.avApiClient = avApiClient;
-    }
 
     public Set<CryptoStats> getCryptoStatistics() {
         var apiResponse = cmcApiClient.getLatestListings();
@@ -52,14 +47,14 @@ public class CryptoService {
                 .collect(Collectors.toCollection(LinkedHashSet::new));
     }
 
-    public CryptoStats getCryptoStatisticsBySymbol(String symbol) {
+    public CryptoStats getCryptoStatisticsBySymbol(final String symbol) {
         return getCryptoStatistics().stream()
                 .filter(c -> c.getSymbol().equals(symbol))
                 .findFirst()
                 .orElseThrow(() -> new CryptoNotFoundException(symbol));
     }
 
-    public String getHistoricalAndPredictedData(String function, String symbol) {
+    public String getHistoricalAndPredictedData(final String function, final String symbol) {
         var apiResponse = avApiClient.getHistoricalData(function, symbol);
         var object = (JsonObject) JsonParser.parseString(apiResponse);
 
@@ -68,7 +63,7 @@ public class CryptoService {
             data = object.get("Time Series (Digital Currency Daily)").getAsJsonObject();
         } catch (Exception e) {
             LOGGER.error("Failed to get json object. Reason: " + e.getMessage());
-            throw new IllegalArgumentException("Fiat cryptocurrencies are not supported yet!");
+            throw new IllegalArgumentException("Unexpected error occurred. Please wait and try again");
         }
 
         Map<String, String> histData = new LinkedHashMap<>();
@@ -77,7 +72,7 @@ public class CryptoService {
             Object value = data.get(currentKey);
 
             if (value instanceof JsonObject) {
-                var price = ((JsonObject) value).get("2b. high (USD)").toString().replace("\"", "");
+                var price = ((JsonObject) value).get("2. high").toString().replace("\"", "");
                 var decimalFormat = new DecimalFormat("0.#####");
                 price = decimalFormat.format(Double.valueOf(price));
                 histData.put(currentKey, price);
@@ -88,7 +83,7 @@ public class CryptoService {
         Map<String, BigDecimal> preparedData = new LinkedHashMap<>(predictedPrices);
         histData.forEach((key, value) -> preparedData.put(key, new BigDecimal(value)));
 
-        return mapToJsonString(preparedData);
+        return mapToJsonString(preparedData, histData.size());
     }
 
     private Map<String, BigDecimal> getPredictedPrices(Map<String, String> histData, String symbol) {
@@ -96,11 +91,11 @@ public class CryptoService {
         TreeMap<String, String> sortedHistData = new TreeMap<>(histData);
         sortedHistData.forEach((k, v) -> cryptoData.add(new CryptoData(k, symbol, Double.parseDouble(v))));
 
-        double[] predictedPrices = new double[0];
+        double[] predictedPrices;
         try {
             predictedPrices = CryptoPricePrediction.predict(cryptoData);
         } catch (IOException e) {
-            e.printStackTrace();
+            throw new IllegalStateException("Failed to predict prices", e);
         }
 
         var currentDate = LocalDate.now();
@@ -117,9 +112,9 @@ public class CryptoService {
                 );
     }
 
-    private String mapToJsonString(Map<String, BigDecimal> data) {
+    private String mapToJsonString(Map<String, BigDecimal> data, int histDataSize) {
         var sb = new StringBuilder();
-        var counter = new AtomicInteger(data.size() - 1000);
+        var counter = new AtomicInteger(data.size() - histDataSize);
         var certainty = new AtomicBoolean(false);
         var rowFormat = "{\"c\":[{\"v\":\"%s\",\"f\":null},{\"v\":%s,\"f\":null},{\"v\":%s}]},";
 

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Users</title>
+    <link th:href="@{/styles/style.css}" rel="stylesheet"/>
+</head>
+<body>
+<header>
+    <nav>
+        <ul>
+            <li><a th:href="@{/}"><h2><b>Crypto Advisor</b></h2></a></li>
+            <li><a th:href="@{/stats}">HOME</a></li>
+            <li><a th:href="@{/about}">ABOUT</a></li>
+            <li><a th:href="@{/contacts}">CONTACTS</a></li>
+            <li class="logout-li"><a th:href="@{/logout}">Log out</a></li>
+        </ul>
+    </nav>
+</header>
+
+<table class="styled-table-3">
+    <thead>
+    <tr>
+        <th style="text-align:center"> Username </th>
+        <th style="text-align:center"> Role </th>
+        <th style="text-align:center"> Enabled </th>
+        <th style="text-align:center"> Actions </th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:if="${users.isEmpty}">
+        <td colspan="4"> No users found </td>
+    </tr>
+    <tr th:each="user : ${users}">
+        <td><span th:text="${user.getUsername()}"> Username </span></td>
+        <td><span th:text="${user.getRole()}"> Role </span></td>
+        <td><span th:text="${user.getIsEnabled()}"> Enabled </span></td>
+        <td>
+            <a th:href="@{/users/{username}/enable?value=false(username=${user.getUsername()})}"> Block </a>
+            /
+            <a th:href="@{/users/{username}/enable?value=true(username=${user.getUsername()})}"> Unblock </a>
+        </td>
+    </tr>
+    </tbody>
+</table>
+
+</body>
+</html>

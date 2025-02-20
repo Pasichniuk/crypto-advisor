@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -34,21 +33,21 @@ public class CmcApiClient {
     }
 
     public String getLatestListings() {
-        List<NameValuePair> parameters = new ArrayList<>();
-        parameters.add(new BasicNameValuePair("start","1"));
-        parameters.add(new BasicNameValuePair("limit","10"));
-        parameters.add(new BasicNameValuePair("convert","USD"));
+        final List<NameValuePair> parameters = List.of(
+                new BasicNameValuePair("start", "1"),
+                new BasicNameValuePair("limit", "10"),
+                new BasicNameValuePair("convert", "USD")
+        );
 
         try {
-            return makeAPICall(url + LISTINGS_LATEST_ENDPOINT, parameters);
-        } catch (IOException | URISyntaxException e) {
+            return makeApiCall(url + LISTINGS_LATEST_ENDPOINT, parameters);
+        } catch (Exception e) {
             LOGGER.error("Caught exception during API call: " + e.getMessage());
+            return "";
         }
-
-        return "";
     }
 
-    private String makeAPICall(String uri, List<NameValuePair> parameters) throws URISyntaxException, IOException {
+    private String makeApiCall(final String uri, final List<NameValuePair> parameters) throws URISyntaxException, IOException {
         String responseContent;
 
         var query = new URIBuilder(uri);
